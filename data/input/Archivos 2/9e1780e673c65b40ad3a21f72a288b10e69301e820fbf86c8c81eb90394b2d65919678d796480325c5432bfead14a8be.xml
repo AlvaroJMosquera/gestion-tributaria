@@ -1,0 +1,612 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CreditNote xmlns="urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2" xmlns:fn="http://www.w3.org/2005/xpath-functions" xmlns:sts="dian:gov:co:facturaelectronica:Structures-2-1" xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" xmlns:xades141="http://uri.etsi.org/01903/v1.4.1#" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <ext:UBLExtensions>
+      <ext:UBLExtension>
+         <ext:ExtensionContent>
+            <sts:DianExtensions>
+               <sts:InvoiceSource>
+                  <cbc:IdentificationCode listAgencyID="6" listAgencyName="United Nations Economic Commission for Europe" listSchemeURI="urn:oasis:names:specification:ubl:codelist:gc:CountryIdentificationCode-2.1">CO</cbc:IdentificationCode>
+               </sts:InvoiceSource>
+               <sts:SoftwareProvider>
+                  <sts:ProviderID schemeID="9" schemeName="31" schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)">900508908</sts:ProviderID>
+                  <sts:SoftwareID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)">56f2ae4e-9812-4fad-9255-08fcfcd5ccb0</sts:SoftwareID>
+               </sts:SoftwareProvider>
+               <sts:SoftwareSecurityCode schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)">08edd6c41bedb28a16d294478e9a90094ee8fc45cb6fe2debfdcd97dcc5229056a6801b92ba390ebb8d18e962eec924d</sts:SoftwareSecurityCode>
+               <sts:AuthorizationProvider>
+                  <sts:AuthorizationProviderID schemeID="4" schemeName="31" schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)">800197268</sts:AuthorizationProviderID>
+               </sts:AuthorizationProvider>
+               <sts:QRCode>https://catalogo-vpfe.dian.gov.co/document/searchqr?documentkey=9e1780e673c65b40ad3a21f72a288b10e69301e820fbf86c8c81eb90394b2d65919678d796480325c5432bfead14a8be</sts:QRCode>
+            </sts:DianExtensions>
+         </ext:ExtensionContent>
+      </ext:UBLExtension>
+   <ext:UBLExtension><ext:ExtensionContent><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Id="Signature-216788c5-9274-4148-bcd9-be751cbfbd3e"><ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315" /><ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" /><ds:Reference Id="Reference-85b3147b-ddb2-4a38-9b07-26f960a0ee4b" URI=""><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" /><ds:DigestValue>P24rUL1xJ8ZK5OCkdtb+aG9ucqGV90PydVBw2TsSx6s=</ds:DigestValue></ds:Reference><ds:Reference Id="ReferenceKeyInfo" URI="#Signature-216788c5-9274-4148-bcd9-be751cbfbd3e-KeyInfo"><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" /><ds:DigestValue>GDRwtsZ6YCoyhqADdhL84itKg2IOAdnzRCG3p/WQtM0=</ds:DigestValue></ds:Reference><ds:Reference Type="http://uri.etsi.org/01903#SignedProperties" URI="#xmldsig-Signature-216788c5-9274-4148-bcd9-be751cbfbd3e-signedprops"><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" /><ds:DigestValue>Ad9zSmzbK9gMNQjqhdmRAF3clVex759wMEOLn9ySx00=</ds:DigestValue></ds:Reference></ds:SignedInfo><ds:SignatureValue Id="SignatureValue-216788c5-9274-4148-bcd9-be751cbfbd3e">MopdytHVwzX9DUb136q+wxQNwEr2H5rWhDfherb0W0LCyYNX6mY+5kgdQLSr0FGZngUTGDb69rSfDy19L9sG8oq7uf5RACptHYIwpOx6OJ60k5TgQkCAT4f52MVePI62gTtlLH8jlznVQVCGSoy/hsiPlrsdH8X01kCwu6YAZmdY5d+kQkbXTiKHvwL4A3efMuIKpp3tAxHqCcgEGryDuKg2/C6RG8/2DQ9j1GDtTRiXvadYKXJBesg27M9/iZR/VJWjOv0C5L4Nbcx39leV+1snWbdV2N6moEy8jXc4gjb0q9hOCjlmeD6VMeIIwr5uj0R88LUwSoI7ryicFmEdWQ==</ds:SignatureValue><ds:KeyInfo Id="Signature-216788c5-9274-4148-bcd9-be751cbfbd3e-KeyInfo"><ds:X509Data><ds:X509Certificate>MIIIDTCCBfWgAwIBAgIIdXCVNzLFB1owDQYJKoZIhvcNAQELBQAwgbYxIzAhBgkqhkiG9w0BCQEWFGluZm9AYW5kZXNzY2QuY29tLmNvMSYwJAYDVQQDEx1DQSBBTkRFUyBTQ0QgUy5BLiBDbGFzZSBJSSB2MzEwMC4GA1UECxMnRGl2aXNpb24gZGUgY2VydGlmaWNhY2lvbiBlbnRpZGFkIGZpbmFsMRIwEAYDVQQKEwlBbmRlcyBTQ0QxFDASBgNVBAcTC0JvZ290YSBELkMuMQswCQYDVQQGEwJDTzAeFw0yNDA4MzAxNzI0MjVaFw0yNjA4MzAxNzIzMjVaMIIBWjEXMBUGA1UECRMOQ1JBIDIzIDY0IEIgMzMxJjAkBgkqhkiG9w0BCQEWF01SQU1PU0BDQVNBTFVLRVIuQ09NLkNPMUYwRAYDVQQDEz1TVUNFU09SRVMgREUgSk9TRSBKRVNVUyBSRVNUUkVQTyBZIENJQSBTLiBBLiBDQVNBIExVS0VSIFMuIEEuMRMwEQYDVQQFEwo4OTA4MDA3MTgxMTYwNAYDVQQMEy1FbWlzb3IgRmFjdHVyYSBFbGVjdHJvbmljYSAtIFBlcnNvbmEgSnVyaWRpY2ExOzA5BgNVBAsTMkVtaXRpZG8gcG9yIEFuZGVzIFNDRCBBYyAyNiA2OSBDIDAzIFRvcnJlIEIgT2YgNzAxMRMwEQYDVQQKEwpURUNOT0xPR0lBMRIwEAYDVQQHEwlNQU5JWkFMRVMxDzANBgNVBAgTBkNBTERBUzELMAkGA1UEBhMCQ08wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCxDxs9KYKEztQK3g/KWVbMHJHyx1/ej8jX6ddbERSMGp20ObcL5SXno8yvt/wSxtkITyapKDEoOcCbgZjb3byIOZYG8gguCi+KhIWfUj4986w/XL+X1XavQ6CHzqV+x8d2UtMOVGfS8LBCEBxSYyq+ieMvxUpgmnW3yTZyofnk5Q/O9JMKV1Hc9lKAKu1ZKsPHegD8azNKten9d3FlKz6zCKJCRrxSA21RJL9RO0+HPoaEvwUOtvY9U24KRAa1cieNnHc7Z9i7mHbmB4incQHPfAtz2/LAq5BEEoO3hWS8o6H01uhWBDLeFjhuXmwPQIlueY8Iep744+ICvH9qDG3hAgMBAAGjggJ2MIICcjAMBgNVHRMBAf8EAjAAMB8GA1UdIwQYMBaAFED+JmlHMicy0awhyC7sz43VNWjoMG8GCCsGAQUFBwEBBGMwYTA2BggrBgEFBQcwAoYqaHR0cDovL2NlcnRzLmFuZGVzc2NkLmNvbS5jby9DbGFzZUlJdjMuY3J0MCcGCCsGAQUFBzABhhtodHRwOi8vb2NzcC5hbmRlc3NjZC5jb20uY28wIgYDVR0RBBswGYEXTVJBTU9TQENBU0FMVUtFUi5DT00uQ08wggEhBgNVHSAEggEYMIIBFDCBwAYMKwYBBAGB9EgBAgYJMIGvMIGsBggrBgEFBQcCAjCBnwyBnExhIHV0aWxpemFjacOzbiBkZSBlc3RlIGNlcnRpZmljYWRvIGVzdMOhIHN1amV0YSBhIGxhIFBDIGRlIEZhY3R1cmFjacOzbiBFbGVjdHLDs25pY2EgeSBEUEMgZXN0YWJsZWNpZGFzIHBvciBBbmRlcyBTQ0QuIEPDs2RpZ28gZGUgQWNyZWRpdGFjacOzbjogMTYtRUNELTAwNDBPBgwrBgEEAYH0SAEBAQswPzA9BggrBgEFBQcCARYxaHR0cHM6Ly93d3cuYW5kZXNzY2QuY29tLmNvL2RvY3MvRFBDX0FuZGVzU0NELnBkZjAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwOQYDVR0fBDIwMDAuoCygKoYoaHR0cDovL2NybC5hbmRlc3NjZC5jb20uY28vQ2xhc2VJSXYzLmNybDAdBgNVHQ4EFgQUIVU1BRkph24A6xkNQfQqfKv0jtgwDgYDVR0PAQH/BAQDAgXgMA0GCSqGSIb3DQEBCwUAA4ICAQBiKwpcRdDxnNhrol9Zu/K+KC6PhviTB7qofRrpwGO4xqrj1hMMT2QIEEwDAGNVTtrFhQEocKsEc1W2/4/6lPHtdTL7ttB69Er74b9Y2AhzoZ0W+sQEBIbQDOJk0gIgTRNOIPKFUjA5U+LGJ6IRlgQ59bPTdlMKziGV6DeydbdgF5NU2F0P+EgQykZQmajZ8+YVozEo3yJXBGQHleSIgO2ssp5x8UNJA02e8XqSk586NzH6UIPD6NkEGkvLz2df0lBH4g9+LovcZ7BrDZn13UDRGiLXk/2iIod+Uh5dyqppbTHVFccZbRoyZPEeRVllwbLE2sc8w5fZXMy5KaLSpEsiQ6oH5UBzkvjcZmHYgC+s54gBy1oFCBl+bijXwI98XePGI0XezKQJWo/sVr9asxUtkE0mtozNQkNgyZSesH455pG4GflHNWxQt8fVl/oH496seVcLFyLBBfcH0N4GQRqkYG/o0OB9+wN/i9vgHLSR1scid+QkkdwR7x3gRbBDRXqC4LlkweKeR/XE5rglP4+zSzN2O/mkVXtwtbd4RH1AVcipKSGqKJ1IfbWc/yH0tVWfjwltsNhqYuChnek57/uwfulYnraQ4TPRFyMbVwjL9LLO5+PcOXsmgkAu06otb2a44FKGC0Qy8nmRk3eVo8L2P7CUvc2Sm1+R2QQhpjIipA==</ds:X509Certificate></ds:X509Data><ds:KeyValue><ds:RSAKeyValue><ds:Modulus>sQ8bPSmChM7UCt4PyllWzByR8sdf3o/I1+nXWxEUjBqdtDm3C+Ul56PMr7f8EsbZCE8mqSgxKDnAm4GY2928iDmWBvIILgovioSFn1I+PfOsP1y/l9V2r0Ogh86lfsfHdlLTDlRn0vCwQhAcUmMqvonjL8VKYJp1t8k2cqH55OUPzvSTCldR3PZSgCrtWSrDx3oA/GszSrXp/XdxZSs+swiiQka8UgNtUSS/UTtPhz6GhL8FDrb2PVNuCkQGtXInjZx3O2fYu5h25geIp3EBz3wLc9vywKuQRBKDt4VkvKOh9NboVgQy3hY4bl5sD0CJbnmPCHqe+OPiArx/agxt4Q==</ds:Modulus><ds:Exponent>AQAB</ds:Exponent></ds:RSAKeyValue></ds:KeyValue></ds:KeyInfo><ds:Object Id="XadesObjectId-4cb6b5b9-f0d5-4240-ab07-e4224cab785a"><xades:QualifyingProperties xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" Id="QualifyingProperties-8cb8d814-41ae-46af-8bc7-d7969b46abf6" Target="#Signature-216788c5-9274-4148-bcd9-be751cbfbd3e"><xades:SignedProperties Id="xmldsig-Signature-216788c5-9274-4148-bcd9-be751cbfbd3e-signedprops"><xades:SignedSignatureProperties><xades:SigningTime>2025-02-21T12:02:37+00:00</xades:SigningTime><xades:SigningCertificate><xades:Cert><xades:CertDigest><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" /><ds:DigestValue>88dA1ZoIeLDPSOj6rE2r6TpIicx6B6GiKQl5ogfBCk0=</ds:DigestValue></xades:CertDigest><xades:IssuerSerial><ds:X509IssuerName>C=CO, L=Bogota D.C., O=Andes SCD, OU=Division de certificacion entidad final, CN=CA ANDES SCD S.A. Clase II v3, E=info@andesscd.com.co</ds:X509IssuerName><ds:X509SerialNumber>8462427764136675162</ds:X509SerialNumber></xades:IssuerSerial></xades:Cert></xades:SigningCertificate><xades:SignaturePolicyIdentifier><xades:SignaturePolicyId><xades:SigPolicyId><xades:Identifier>https://facturaelectronica.dian.gov.co/politicadefirma/v2/politicadefirmav2.pdf</xades:Identifier><xades:Description /></xades:SigPolicyId><xades:SigPolicyHash><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" /><ds:DigestValue>dMoMvtcG5aIzgYo0tIsSQeVJBDnUnfSOfBpxXrmor0Y=</ds:DigestValue></xades:SigPolicyHash></xades:SignaturePolicyId></xades:SignaturePolicyIdentifier><xades:SignerRole><xades:ClaimedRoles><xades:ClaimedRole>third party</xades:ClaimedRole></xades:ClaimedRoles></xades:SignerRole></xades:SignedSignatureProperties><xades:SignedDataObjectProperties><xades:DataObjectFormat ObjectReference="#Reference-85b3147b-ddb2-4a38-9b07-26f960a0ee4b"><xades:MimeType>text/xml</xades:MimeType><xades:Encoding>UTF-8</xades:Encoding></xades:DataObjectFormat></xades:SignedDataObjectProperties></xades:SignedProperties></xades:QualifyingProperties></ds:Object></ds:Signature></ext:ExtensionContent></ext:UBLExtension></ext:UBLExtensions>
+   <cbc:UBLVersionID>UBL 2.1</cbc:UBLVersionID>
+   <cbc:CustomizationID>20</cbc:CustomizationID>
+   <cbc:ProfileID>DIAN 2.1: Nota Crédito de Factura Electrónica de Venta</cbc:ProfileID>
+   <cbc:ProfileExecutionID>1</cbc:ProfileExecutionID>
+   <cbc:ID>92964780</cbc:ID>
+   <cbc:UUID schemeID="1" schemeName="CUDE-SHA384">9e1780e673c65b40ad3a21f72a288b10e69301e820fbf86c8c81eb90394b2d65919678d796480325c5432bfead14a8be</cbc:UUID>
+   <cbc:IssueDate>2025-02-21</cbc:IssueDate>
+   <cbc:IssueTime>12:01:25-05:00</cbc:IssueTime>
+   <cbc:CreditNoteTypeCode>91</cbc:CreditNoteTypeCode>
+   <cbc:DocumentCurrencyCode listID="ISO 4217 Alpha" listAgencyID="6" listAgencyName="United Nations Economic Commission for Europe">COP</cbc:DocumentCurrencyCode>
+   <cbc:LineCountNumeric>8</cbc:LineCountNumeric>
+   <cac:DiscrepancyResponse>
+      <cbc:ReferenceID>3031690353</cbc:ReferenceID>
+      <cbc:ResponseCode>1</cbc:ResponseCode>
+      <cbc:Description>Nota Crédito</cbc:Description>
+   </cac:DiscrepancyResponse>
+   <cac:OrderReference>
+      <cbc:ID>3031690353</cbc:ID>
+   </cac:OrderReference>
+   <cac:BillingReference>
+      <cac:InvoiceDocumentReference>
+         <cbc:ID>3031690353</cbc:ID>
+         <cbc:UUID schemeName="CUFE-SHA384">51717b02b6e515a87f6feaf52659918874c5942c08301768e5e987544ea095eef1d2703de1397de6424a3ecd46d6aa85</cbc:UUID>
+         <cbc:IssueDate>2025-02-21</cbc:IssueDate>
+      </cac:InvoiceDocumentReference>
+   </cac:BillingReference>
+   <cac:AccountingSupplierParty>
+      <cbc:AdditionalAccountID>1</cbc:AdditionalAccountID>
+      <cac:Party>
+         <cac:PartyName>
+            <cbc:Name>SUCESORES DE JOSE JESUS RESTREPO Y CIA S. A. CASA LUKER S. A.</cbc:Name>
+         </cac:PartyName>
+         <cac:PhysicalLocation>
+            <cac:Address>
+               <cbc:ID>76001</cbc:ID>
+               <cbc:CityName>CALI</cbc:CityName>
+               <cbc:PostalZone>000000</cbc:PostalZone>
+               <cbc:CountrySubentity>Valle del Cauca</cbc:CountrySubentity>
+               <cbc:CountrySubentityCode>76</cbc:CountrySubentityCode>
+               <cac:AddressLine>
+                  <cbc:Line>CL 15 25A 36 AUTOPISTA CALI YUMBO</cbc:Line>
+               </cac:AddressLine>
+               <cac:Country>
+                  <cbc:IdentificationCode>CO</cbc:IdentificationCode>
+                  <cbc:Name languageID="es">Colombia</cbc:Name>
+               </cac:Country>
+            </cac:Address>
+         </cac:PhysicalLocation>
+         <cac:PartyTaxScheme>
+            <cbc:RegistrationName>SUCESORES DE JOSE JESUS RESTREPO Y CIA S. A. CASA LUKER S. A.</cbc:RegistrationName>
+            <cbc:CompanyID schemeID="1" schemeName="31" schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)">890800718</cbc:CompanyID>
+            <cbc:TaxLevelCode listName="48">O-13</cbc:TaxLevelCode>
+            <cac:RegistrationAddress>
+               <cbc:ID>17001</cbc:ID>
+               <cbc:CityName>MANIZALES</cbc:CityName>
+               <cbc:PostalZone>000000</cbc:PostalZone>
+               <cbc:CountrySubentity>Caldas</cbc:CountrySubentity>
+               <cbc:CountrySubentityCode>17</cbc:CountrySubentityCode>
+               <cac:AddressLine>
+                  <cbc:Line>KR 23 64B 33 TORRE A SEC EL CABLE</cbc:Line>
+               </cac:AddressLine>
+               <cac:Country>
+                  <cbc:IdentificationCode>CO</cbc:IdentificationCode>
+                  <cbc:Name languageID="es">Colombia</cbc:Name>
+               </cac:Country>
+            </cac:RegistrationAddress>
+            <cac:TaxScheme>
+               <cbc:ID>01</cbc:ID>
+               <cbc:Name>IVA</cbc:Name>
+            </cac:TaxScheme>
+         </cac:PartyTaxScheme>
+         <cac:PartyLegalEntity>
+            <cbc:RegistrationName>SUCESORES DE JOSE JESUS RESTREPO Y CIA S. A. CASA LUKER S. A.</cbc:RegistrationName>
+            <cbc:CompanyID schemeID="1" schemeName="31" schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)">890800718</cbc:CompanyID>
+         </cac:PartyLegalEntity>
+         <cac:Contact>
+            <cbc:Name>Atencion proveedores</cbc:Name>
+            <cbc:Telephone>57 447 37 00</cbc:Telephone>
+            <cbc:ElectronicMail>atencion.proveedores@casaluker.com.co</cbc:ElectronicMail>
+         </cac:Contact>
+      </cac:Party>
+   </cac:AccountingSupplierParty>
+   <cac:AccountingCustomerParty>
+      <cbc:SupplierAssignedAccountID />
+      <cbc:AdditionalAccountID>1</cbc:AdditionalAccountID>
+      <cac:Party>
+         <cac:PartyName>
+            <cbc:Name>RIVERA,GALLEGO</cbc:Name>
+         </cac:PartyName>
+         <cac:PhysicalLocation>
+            <cac:Address>
+               <cbc:ID>76001</cbc:ID>
+               <cbc:CityName>CALI</cbc:CityName>
+               <cbc:PostalZone>760010</cbc:PostalZone>
+               <cbc:CountrySubentity>Valle del Cauca</cbc:CountrySubentity>
+               <cbc:CountrySubentityCode>76</cbc:CountrySubentityCode>
+               <cac:AddressLine>
+                  <cbc:Line>CL 47 RTE CR 4AN 24</cbc:Line>
+               </cac:AddressLine>
+               <cac:Country>
+                  <cbc:IdentificationCode>CO</cbc:IdentificationCode>
+                  <cbc:Name languageID="es">Colombia</cbc:Name>
+               </cac:Country>
+            </cac:Address>
+         </cac:PhysicalLocation>
+         <cac:PartyTaxScheme>
+            <cbc:RegistrationName>RIVERA GALLEGO JUAN SEBASTIAN</cbc:RegistrationName>
+            <cbc:CompanyID schemeName="13" schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)">1193415473</cbc:CompanyID>
+            <cbc:TaxLevelCode>R-99-PN</cbc:TaxLevelCode>
+            <cac:RegistrationAddress>
+               <cbc:ID>76001</cbc:ID>
+               <cbc:CityName>CALI</cbc:CityName>
+               <cbc:PostalZone>760010</cbc:PostalZone>
+               <cbc:CountrySubentity>Valle del Cauca</cbc:CountrySubentity>
+               <cbc:CountrySubentityCode>76</cbc:CountrySubentityCode>
+               <cac:AddressLine>
+                  <cbc:Line>CL 47 RTE CR 4AN 24</cbc:Line>
+               </cac:AddressLine>
+               <cac:Country>
+                  <cbc:IdentificationCode>CO</cbc:IdentificationCode>
+                  <cbc:Name languageID="es">Colombia</cbc:Name>
+               </cac:Country>
+            </cac:RegistrationAddress>
+            <cac:TaxScheme>
+               <cbc:ID>ZZ</cbc:ID>
+               <cbc:Name>No aplica</cbc:Name>
+            </cac:TaxScheme>
+         </cac:PartyTaxScheme>
+         <cac:PartyLegalEntity>
+            <cbc:RegistrationName>RIVERA GALLEGO JUAN SEBASTIAN</cbc:RegistrationName>
+            <cbc:CompanyID schemeName="13" schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)">1193415473</cbc:CompanyID>
+            <cac:CorporateRegistrationScheme>
+               <cbc:Name>0000000000000</cbc:Name>
+            </cac:CorporateRegistrationScheme>
+         </cac:PartyLegalEntity>
+         <cac:Contact>
+            <cbc:Name>RIVERA GALLEGO JUAN SEBAS</cbc:Name>
+            <cbc:Telephone>3106335637</cbc:Telephone>
+            <cbc:ElectronicMail>supermarketsrivera@gmail.com</cbc:ElectronicMail>
+         </cac:Contact>
+      </cac:Party>
+   </cac:AccountingCustomerParty>
+   <cac:Delivery>
+      <cbc:ActualDeliveryDate>2025-02-22</cbc:ActualDeliveryDate>
+      <cac:DeliveryAddress>
+         <cbc:ID>76001</cbc:ID>
+         <cbc:CityName>CALI</cbc:CityName>
+         <cbc:PostalZone>760010</cbc:PostalZone>
+         <cbc:CountrySubentity>CALI76</cbc:CountrySubentity>
+         <cbc:CountrySubentityCode>76</cbc:CountrySubentityCode>
+         <cac:AddressLine>
+            <cbc:Line>CL 47 RTE CR 4AN 24</cbc:Line>
+         </cac:AddressLine>
+         <cac:Country>
+            <cbc:IdentificationCode>CO</cbc:IdentificationCode>
+            <cbc:Name languageID="es">Colombia</cbc:Name>
+         </cac:Country>
+      </cac:DeliveryAddress>
+   </cac:Delivery>
+   <cac:PaymentMeans>
+      <cbc:ID>1</cbc:ID>
+      <cbc:PaymentMeansCode>10</cbc:PaymentMeansCode>
+      <cbc:PaymentDueDate>2025-02-21</cbc:PaymentDueDate>
+   </cac:PaymentMeans>
+   <cac:TaxTotal>
+      <cbc:TaxAmount currencyID="COP">51187.00</cbc:TaxAmount>
+      <cac:TaxSubtotal>
+         <cbc:TaxableAmount currencyID="COP">269405.26</cbc:TaxableAmount>
+         <cbc:TaxAmount currencyID="COP">51187.00</cbc:TaxAmount>
+         <cac:TaxCategory>
+            <cbc:Percent>19.00</cbc:Percent>
+            <cac:TaxScheme>
+               <cbc:ID>01</cbc:ID>
+               <cbc:Name>IVA</cbc:Name>
+            </cac:TaxScheme>
+         </cac:TaxCategory>
+      </cac:TaxSubtotal>
+      <cac:TaxSubtotal>
+         <cbc:TaxableAmount currencyID="COP">21451.00</cbc:TaxableAmount>
+         <cbc:TaxAmount currencyID="COP">0.00</cbc:TaxAmount>
+         <cac:TaxCategory>
+            <cbc:Percent>0.00</cbc:Percent>
+            <cac:TaxScheme>
+               <cbc:ID>01</cbc:ID>
+               <cbc:Name>IVA</cbc:Name>
+            </cac:TaxScheme>
+         </cac:TaxCategory>
+      </cac:TaxSubtotal>
+   </cac:TaxTotal>
+   <cac:TaxTotal>
+      <cbc:TaxAmount currencyID="COP">1640.00</cbc:TaxAmount>
+      <cac:TaxSubtotal>
+         <cbc:TaxableAmount currencyID="COP">8200.00</cbc:TaxableAmount>
+         <cbc:TaxAmount currencyID="COP">1640.00</cbc:TaxAmount>
+         <cac:TaxCategory>
+            <cbc:Percent>20.00</cbc:Percent>
+            <cac:TaxScheme>
+               <cbc:ID>35</cbc:ID>
+               <cbc:Name>ICUI</cbc:Name>
+            </cac:TaxScheme>
+         </cac:TaxCategory>
+      </cac:TaxSubtotal>
+      <cac:TaxSubtotal>
+         <cbc:TaxableAmount currencyID="COP">282656.00</cbc:TaxableAmount>
+         <cbc:TaxAmount currencyID="COP">0.00</cbc:TaxAmount>
+         <cac:TaxCategory>
+            <cbc:Percent>0.00</cbc:Percent>
+            <cac:TaxScheme>
+               <cbc:ID>35</cbc:ID>
+               <cbc:Name>ICUI</cbc:Name>
+            </cac:TaxScheme>
+         </cac:TaxCategory>
+      </cac:TaxSubtotal>
+   </cac:TaxTotal>
+   <cac:LegalMonetaryTotal>
+      <cbc:LineExtensionAmount currencyID="COP">290856.00</cbc:LineExtensionAmount>
+      <cbc:TaxExclusiveAmount currencyID="COP">290856.00</cbc:TaxExclusiveAmount>
+      <cbc:TaxInclusiveAmount currencyID="COP">343683.00</cbc:TaxInclusiveAmount>
+      <cbc:PayableAmount currencyID="COP">343683.00</cbc:PayableAmount>
+   </cac:LegalMonetaryTotal>
+   <cac:CreditNoteLine>
+      <cbc:ID>1</cbc:ID>
+      <cbc:CreditedQuantity unitCode="94">4.000000</cbc:CreditedQuantity>
+      <cbc:LineExtensionAmount currencyID="COP">8200.00</cbc:LineExtensionAmount>
+      <cac:TaxTotal>
+         <cbc:TaxAmount currencyID="COP">1558.00</cbc:TaxAmount>
+         <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="COP">8200.00</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="COP">1558.00</cbc:TaxAmount>
+            <cac:TaxCategory>
+               <cbc:Percent>19.00</cbc:Percent>
+               <cac:TaxScheme>
+                  <cbc:ID>01</cbc:ID>
+                  <cbc:Name>IVA</cbc:Name>
+               </cac:TaxScheme>
+            </cac:TaxCategory>
+         </cac:TaxSubtotal>
+      </cac:TaxTotal>
+      <cac:TaxTotal>
+         <cbc:TaxAmount currencyID="COP">1640.00</cbc:TaxAmount>
+         <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="COP">8200.00</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="COP">1640.00</cbc:TaxAmount>
+            <cac:TaxCategory>
+               <cbc:Percent>20.00</cbc:Percent>
+               <cac:TaxScheme>
+                  <cbc:ID>35</cbc:ID>
+                  <cbc:Name>ICUI</cbc:Name>
+               </cac:TaxScheme>
+            </cac:TaxCategory>
+         </cac:TaxSubtotal>
+      </cac:TaxTotal>
+      <cac:Item>
+         <cbc:Description>ALM FRANCESA COLOR SURTIDO (75PLEG/50G</cbc:Description>
+         <cac:StandardItemIdentification>
+            <cbc:ID schemeID="999" schemeName="EAN13">7702386010545</cbc:ID>
+         </cac:StandardItemIdentification>
+         <cac:AdditionalItemIdentification>
+            <cbc:ID schemeID="999" schemeName="EAN13">7702386010545</cbc:ID>
+         </cac:AdditionalItemIdentification>
+      </cac:Item>
+      <cac:Price>
+         <cbc:PriceAmount currencyID="COP">2050.00</cbc:PriceAmount>
+         <cbc:BaseQuantity unitCode="94">4.000000</cbc:BaseQuantity>
+      </cac:Price>
+   </cac:CreditNoteLine>
+   <cac:CreditNoteLine>
+      <cbc:ID>2</cbc:ID>
+      <cbc:CreditedQuantity unitCode="94">2.000000</cbc:CreditedQuantity>
+      <cbc:LineExtensionAmount currencyID="COP">23732.00</cbc:LineExtensionAmount>
+      <cac:TaxTotal>
+         <cbc:TaxAmount currencyID="COP">4509.00</cbc:TaxAmount>
+         <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="COP">23732.00</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="COP">4509.00</cbc:TaxAmount>
+            <cac:TaxCategory>
+               <cbc:Percent>19.00</cbc:Percent>
+               <cac:TaxScheme>
+                  <cbc:ID>01</cbc:ID>
+                  <cbc:Name>IVA</cbc:Name>
+               </cac:TaxScheme>
+            </cac:TaxCategory>
+         </cac:TaxSubtotal>
+      </cac:TaxTotal>
+      <cac:TaxTotal>
+         <cbc:TaxAmount currencyID="COP">0.00</cbc:TaxAmount>
+         <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="COP">23732.00</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="COP">0.00</cbc:TaxAmount>
+            <cac:TaxCategory>
+               <cbc:Percent>0.00</cbc:Percent>
+               <cac:TaxScheme>
+                  <cbc:ID>35</cbc:ID>
+                  <cbc:Name>ICUI</cbc:Name>
+               </cac:TaxScheme>
+            </cac:TaxCategory>
+         </cac:TaxSubtotal>
+      </cac:TaxTotal>
+      <cac:Item>
+         <cbc:Description>DISPLAY NUTELLA POR 12 UNDS</cbc:Description>
+         <cac:StandardItemIdentification>
+            <cbc:ID schemeID="999" schemeName="EAN13">9999999999901</cbc:ID>
+         </cac:StandardItemIdentification>
+         <cac:AdditionalItemIdentification>
+            <cbc:ID schemeID="999" schemeName="EAN13">9999999999901</cbc:ID>
+         </cac:AdditionalItemIdentification>
+      </cac:Item>
+      <cac:Price>
+         <cbc:PriceAmount currencyID="COP">11866.00</cbc:PriceAmount>
+         <cbc:BaseQuantity unitCode="94">2.000000</cbc:BaseQuantity>
+      </cac:Price>
+   </cac:CreditNoteLine>
+   <cac:CreditNoteLine>
+      <cbc:ID>3</cbc:ID>
+      <cbc:CreditedQuantity unitCode="94">4.000000</cbc:CreditedQuantity>
+      <cbc:LineExtensionAmount currencyID="COP">32396.00</cbc:LineExtensionAmount>
+      <cac:TaxTotal>
+         <cbc:TaxAmount currencyID="COP">6155.00</cbc:TaxAmount>
+         <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="COP">32396.00</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="COP">6155.00</cbc:TaxAmount>
+            <cac:TaxCategory>
+               <cbc:Percent>19.00</cbc:Percent>
+               <cac:TaxScheme>
+                  <cbc:ID>01</cbc:ID>
+                  <cbc:Name>IVA</cbc:Name>
+               </cac:TaxScheme>
+            </cac:TaxCategory>
+         </cac:TaxSubtotal>
+      </cac:TaxTotal>
+      <cac:TaxTotal>
+         <cbc:TaxAmount currencyID="COP">0.00</cbc:TaxAmount>
+         <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="COP">32396.00</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="COP">0.00</cbc:TaxAmount>
+            <cac:TaxCategory>
+               <cbc:Percent>0.00</cbc:Percent>
+               <cac:TaxScheme>
+                  <cbc:ID>35</cbc:ID>
+                  <cbc:Name>ICUI</cbc:Name>
+               </cac:TaxScheme>
+            </cac:TaxCategory>
+         </cac:TaxSubtotal>
+      </cac:TaxTotal>
+      <cac:Item>
+         <cbc:Description>ROCHER T4X10</cbc:Description>
+         <cac:StandardItemIdentification>
+            <cbc:ID schemeID="999" schemeName="EAN13">7898024397861</cbc:ID>
+         </cac:StandardItemIdentification>
+         <cac:AdditionalItemIdentification>
+            <cbc:ID schemeID="999" schemeName="EAN13">7898024397861</cbc:ID>
+         </cac:AdditionalItemIdentification>
+      </cac:Item>
+      <cac:Price>
+         <cbc:PriceAmount currencyID="COP">8099.00</cbc:PriceAmount>
+         <cbc:BaseQuantity unitCode="94">4.000000</cbc:BaseQuantity>
+      </cac:Price>
+   </cac:CreditNoteLine>
+   <cac:CreditNoteLine>
+      <cbc:ID>4</cbc:ID>
+      <cbc:CreditedQuantity unitCode="94">1.000000</cbc:CreditedQuantity>
+      <cbc:LineExtensionAmount currencyID="COP">21451.00</cbc:LineExtensionAmount>
+      <cac:TaxTotal>
+         <cbc:TaxAmount currencyID="COP">0.00</cbc:TaxAmount>
+         <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="COP">21451.00</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="COP">0.00</cbc:TaxAmount>
+            <cac:TaxCategory>
+               <cbc:Percent>0.00</cbc:Percent>
+               <cac:TaxScheme>
+                  <cbc:ID>01</cbc:ID>
+                  <cbc:Name>IVA</cbc:Name>
+               </cac:TaxScheme>
+            </cac:TaxCategory>
+         </cac:TaxSubtotal>
+      </cac:TaxTotal>
+      <cac:TaxTotal>
+         <cbc:TaxAmount currencyID="COP">0.00</cbc:TaxAmount>
+         <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="COP">21451.00</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="COP">0.00</cbc:TaxAmount>
+            <cac:TaxCategory>
+               <cbc:Percent>0.00</cbc:Percent>
+               <cac:TaxScheme>
+                  <cbc:ID>35</cbc:ID>
+                  <cbc:Name>ICUI</cbc:Name>
+               </cac:TaxScheme>
+            </cac:TaxCategory>
+         </cac:TaxSubtotal>
+      </cac:TaxTotal>
+      <cac:Item>
+         <cbc:Description>TUBITO LECHE COND 45G DISPLAY X12 UND</cbc:Description>
+         <cac:StandardItemIdentification>
+            <cbc:ID schemeID="999" schemeName="EAN13">7707226110737</cbc:ID>
+         </cac:StandardItemIdentification>
+         <cac:AdditionalItemIdentification>
+            <cbc:ID schemeID="999" schemeName="EAN13">7707226110737</cbc:ID>
+         </cac:AdditionalItemIdentification>
+      </cac:Item>
+      <cac:Price>
+         <cbc:PriceAmount currencyID="COP">21451.00</cbc:PriceAmount>
+         <cbc:BaseQuantity unitCode="94">1.000000</cbc:BaseQuantity>
+      </cac:Price>
+   </cac:CreditNoteLine>
+   <cac:CreditNoteLine>
+      <cbc:ID>5</cbc:ID>
+      <cbc:CreditedQuantity unitCode="94">5.000000</cbc:CreditedQuantity>
+      <cbc:LineExtensionAmount currencyID="COP">19914.00</cbc:LineExtensionAmount>
+      <cac:TaxTotal>
+         <cbc:TaxAmount currencyID="COP">3784.00</cbc:TaxAmount>
+         <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="COP">19914.00</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="COP">3784.00</cbc:TaxAmount>
+            <cac:TaxCategory>
+               <cbc:Percent>19.00</cbc:Percent>
+               <cac:TaxScheme>
+                  <cbc:ID>01</cbc:ID>
+                  <cbc:Name>IVA</cbc:Name>
+               </cac:TaxScheme>
+            </cac:TaxCategory>
+         </cac:TaxSubtotal>
+      </cac:TaxTotal>
+      <cac:TaxTotal>
+         <cbc:TaxAmount currencyID="COP">0.00</cbc:TaxAmount>
+         <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="COP">19914.00</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="COP">0.00</cbc:TaxAmount>
+            <cac:TaxCategory>
+               <cbc:Percent>0.00</cbc:Percent>
+               <cac:TaxScheme>
+                  <cbc:ID>35</cbc:ID>
+                  <cbc:Name>ICUI</cbc:Name>
+               </cac:TaxScheme>
+            </cac:TaxCategory>
+         </cac:TaxSubtotal>
+      </cac:TaxTotal>
+      <cac:Item>
+         <cbc:Description>AC GARZA 24X420 CF</cbc:Description>
+         <cac:StandardItemIdentification>
+            <cbc:ID schemeID="999" schemeName="EAN13">7702141005427</cbc:ID>
+         </cac:StandardItemIdentification>
+         <cac:AdditionalItemIdentification>
+            <cbc:ID schemeID="999" schemeName="EAN13">7702141005427</cbc:ID>
+         </cac:AdditionalItemIdentification>
+      </cac:Item>
+      <cac:Price>
+         <cbc:PriceAmount currencyID="COP">4106.00</cbc:PriceAmount>
+         <cbc:BaseQuantity unitCode="94">5.000000</cbc:BaseQuantity>
+      </cac:Price>
+   </cac:CreditNoteLine>
+   <cac:CreditNoteLine>
+      <cbc:ID>6</cbc:ID>
+      <cbc:CreditedQuantity unitCode="94">4.000000</cbc:CreditedQuantity>
+      <cbc:LineExtensionAmount currencyID="COP">55700.00</cbc:LineExtensionAmount>
+      <cac:TaxTotal>
+         <cbc:TaxAmount currencyID="COP">10583.00</cbc:TaxAmount>
+         <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="COP">55700.00</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="COP">10583.00</cbc:TaxAmount>
+            <cac:TaxCategory>
+               <cbc:Percent>19.00</cbc:Percent>
+               <cac:TaxScheme>
+                  <cbc:ID>01</cbc:ID>
+                  <cbc:Name>IVA</cbc:Name>
+               </cac:TaxScheme>
+            </cac:TaxCategory>
+         </cac:TaxSubtotal>
+      </cac:TaxTotal>
+      <cac:TaxTotal>
+         <cbc:TaxAmount currencyID="COP">0.00</cbc:TaxAmount>
+         <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="COP">55700.00</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="COP">0.00</cbc:TaxAmount>
+            <cac:TaxCategory>
+               <cbc:Percent>0.00</cbc:Percent>
+               <cac:TaxScheme>
+                  <cbc:ID>35</cbc:ID>
+                  <cbc:Name>ICUI</cbc:Name>
+               </cac:TaxScheme>
+            </cac:TaxCategory>
+         </cac:TaxSubtotal>
+      </cac:TaxTotal>
+      <cac:Item>
+         <cbc:Description>KINDER BUENO BOLSA X 3 UND X 11 X 4</cbc:Description>
+         <cac:StandardItemIdentification>
+            <cbc:ID schemeID="999" schemeName="EAN13">8000500050897</cbc:ID>
+         </cac:StandardItemIdentification>
+         <cac:AdditionalItemIdentification>
+            <cbc:ID schemeID="999" schemeName="EAN13">8000500050897</cbc:ID>
+         </cac:AdditionalItemIdentification>
+      </cac:Item>
+      <cac:Price>
+         <cbc:PriceAmount currencyID="COP">13925.00</cbc:PriceAmount>
+         <cbc:BaseQuantity unitCode="94">4.000000</cbc:BaseQuantity>
+      </cac:Price>
+   </cac:CreditNoteLine>
+   <cac:CreditNoteLine>
+      <cbc:ID>7</cbc:ID>
+      <cbc:CreditedQuantity unitCode="94">16.000000</cbc:CreditedQuantity>
+      <cbc:LineExtensionAmount currencyID="COP">85120.00</cbc:LineExtensionAmount>
+      <cac:TaxTotal>
+         <cbc:TaxAmount currencyID="COP">16173.00</cbc:TaxAmount>
+         <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="COP">85120.00</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="COP">16173.00</cbc:TaxAmount>
+            <cac:TaxCategory>
+               <cbc:Percent>19.00</cbc:Percent>
+               <cac:TaxScheme>
+                  <cbc:ID>01</cbc:ID>
+                  <cbc:Name>IVA</cbc:Name>
+               </cac:TaxScheme>
+            </cac:TaxCategory>
+         </cac:TaxSubtotal>
+      </cac:TaxTotal>
+      <cac:TaxTotal>
+         <cbc:TaxAmount currencyID="COP">0.00</cbc:TaxAmount>
+         <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="COP">85120.00</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="COP">0.00</cbc:TaxAmount>
+            <cac:TaxCategory>
+               <cbc:Percent>0.00</cbc:Percent>
+               <cac:TaxScheme>
+                  <cbc:ID>35</cbc:ID>
+                  <cbc:Name>ICUI</cbc:Name>
+               </cac:TaxScheme>
+            </cac:TaxCategory>
+         </cac:TaxSubtotal>
+      </cac:TaxTotal>
+      <cac:Item>
+         <cbc:Description>ROCHER DISPLAY X 3UND X 16</cbc:Description>
+         <cac:StandardItemIdentification>
+            <cbc:ID schemeID="999" schemeName="EAN13">78909434</cbc:ID>
+         </cac:StandardItemIdentification>
+         <cac:AdditionalItemIdentification>
+            <cbc:ID schemeID="999" schemeName="EAN13">78909434</cbc:ID>
+         </cac:AdditionalItemIdentification>
+      </cac:Item>
+      <cac:Price>
+         <cbc:PriceAmount currencyID="COP">5320.00</cbc:PriceAmount>
+         <cbc:BaseQuantity unitCode="94">16.000000</cbc:BaseQuantity>
+      </cac:Price>
+   </cac:CreditNoteLine>
+   <cac:CreditNoteLine>
+      <cbc:ID>8</cbc:ID>
+      <cbc:CreditedQuantity unitCode="94">6.000000</cbc:CreditedQuantity>
+      <cbc:LineExtensionAmount currencyID="COP">44343.00</cbc:LineExtensionAmount>
+      <cac:TaxTotal>
+         <cbc:TaxAmount currencyID="COP">8425.00</cbc:TaxAmount>
+         <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="COP">44343.00</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="COP">8425.00</cbc:TaxAmount>
+            <cac:TaxCategory>
+               <cbc:Percent>19.00</cbc:Percent>
+               <cac:TaxScheme>
+                  <cbc:ID>01</cbc:ID>
+                  <cbc:Name>IVA</cbc:Name>
+               </cac:TaxScheme>
+            </cac:TaxCategory>
+         </cac:TaxSubtotal>
+      </cac:TaxTotal>
+      <cac:TaxTotal>
+         <cbc:TaxAmount currencyID="COP">0.00</cbc:TaxAmount>
+         <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="COP">44343.00</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="COP">0.00</cbc:TaxAmount>
+            <cac:TaxCategory>
+               <cbc:Percent>0.00</cbc:Percent>
+               <cac:TaxScheme>
+                  <cbc:ID>35</cbc:ID>
+                  <cbc:Name>ICUI</cbc:Name>
+               </cac:TaxScheme>
+            </cac:TaxCategory>
+         </cac:TaxSubtotal>
+      </cac:TaxTotal>
+      <cac:Item>
+         <cbc:Description>GOURMET FAMILIA 24 X 420 ML</cbc:Description>
+         <cac:StandardItemIdentification>
+            <cbc:ID schemeID="999" schemeName="EAN13">7702141680655</cbc:ID>
+         </cac:StandardItemIdentification>
+         <cac:AdditionalItemIdentification>
+            <cbc:ID schemeID="999" schemeName="EAN13">7702141680655</cbc:ID>
+         </cac:AdditionalItemIdentification>
+      </cac:Item>
+      <cac:Price>
+         <cbc:PriceAmount currencyID="COP">7612.00</cbc:PriceAmount>
+         <cbc:BaseQuantity unitCode="94">6.000000</cbc:BaseQuantity>
+      </cac:Price>
+   </cac:CreditNoteLine>
+   
+</CreditNote>

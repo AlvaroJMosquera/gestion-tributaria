@@ -1,0 +1,90 @@
+# ======================================================
+# CREDENCIALES Y CONFIGURACIÓN SENSIBLE
+# ======================================================
+.env
+*.env
+.env.local
+.env.production
+
+# ======================================================
+# ENTORNO VIRTUAL PYTHON
+# ======================================================
+venv/
+.venv/
+env/
+ENV/
+
+# ======================================================
+# PYTHON — CACHÉ Y COMPILADOS
+# ======================================================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+.Python
+
+# ======================================================
+# PYINSTALLER (tu main.spec y builds)
+# ======================================================
+*.spec
+build/
+dist/
+*.exe
+
+# ======================================================
+# ARCHIVOS GENERADOS POR EL SISTEMA
+# (Excel de facturas, reportes, errores)
+# ======================================================
+data/Archivos/
+data/Archivos 2/
+*.xlsx
+*.xls
+errores_*.xlsx
+Facturas_Extraidas_*.xlsx
+Resultados_Pruebas_*.xlsx
+
+# ======================================================
+# BASE DE DATOS LOCAL / SUPABASE
+# ======================================================
+*.sqlite
+*.db
+Supabase.txt
+
+# ======================================================
+# IDEs Y EDITORES
+# ======================================================
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ======================================================
+# SISTEMA OPERATIVO
+# ======================================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ======================================================
+# LOGS
+# ======================================================
+*.log
+logs/
+
+# ======================================================
+# DOCUMENTACIÓN INTERNA (opcional — quitar si la quieres subir)
+# ======================================================
+docs/Pendientes.txt
+docs/Preguntas.txt
+```
+
+---
+
+### Lo más importante de este archivo
+
+Hay **tres líneas críticas** que no pueden faltar bajo ninguna circunstancia:
+```
+.env          ← tus credenciales de Supabase
+venv/         ← puede pesar cientos de MB
+build/        ← binarios de PyInstaller
