@@ -144,6 +144,8 @@ class Party(Base):
     razon_social: Mapped[Optional[str]] = mapped_column(String)
     nit: Mapped[Optional[str]] = mapped_column(String)
     correo: Mapped[Optional[str]] = mapped_column(String)
+    pais: Mapped[Optional[str]] = mapped_column(String)
+    municipio: Mapped[Optional[str]] = mapped_column(String)
     tenant_id: Mapped[str] = mapped_column(UUID, ForeignKey("tenants.id"), nullable=False)
     document: Mapped["Document"] = relationship(back_populates="parties")
 

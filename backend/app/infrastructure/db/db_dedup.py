@@ -18,23 +18,28 @@ def apply_unique_indexes(session):
         session.execute(text(sql))
     session.commit()
 
+from sqlalchemy import select, text, insert, or_
+
 def _find_existing(session, cufe, cude, document_id, tenant_id: str):
+    conditions = []
     if cufe:
-        doc = session.execute(
-            select(Document).where(Document.cufe == cufe, Document.tenant_id == tenant_id)
-        ).scalar_one_or_none()
-        if doc: return doc
+        conditions.append(Document.cufe == cufe)
     if cude:
-        doc = session.execute(
-            select(Document).where(Document.cude == cude, Document.tenant_id == tenant_id)
-        ).scalar_one_or_none()
-        if doc: return doc
+        conditions.append(Document.cude == cude)
     if document_id:
-        doc = session.execute(
-            select(Document).where(Document.document_id == document_id, Document.tenant_id == tenant_id)
-        ).scalar_one_or_none()
-        if doc: return doc
-    return None
+        conditions.append(Document.document_id == document_id)
+        
+    if not conditions:
+        return None
+        
+    query = select(Document).where(
+        Document.tenant_id == tenant_id,
+        or_(*conditions)
+    )
+    
+    # Return the first one that matches any of the criteria
+    doc = session.execute(query).scalars().first()
+    return doc
 
 def upsert_document_with_lines_idempotent(
     session, batch_id, md_doc, parties, lines, file_name=None, tenant_id=None

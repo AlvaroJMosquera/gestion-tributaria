@@ -279,13 +279,17 @@ def upsert_document_with_lines(
             role="supplier",
             razon_social=parties.get("SupplierRazónSocial"),
             nit=parties.get("SenderNIT"),
-            correo=parties.get("SupplierCorreo")
+            correo=parties.get("SupplierCorreo"),
+            pais=parties.get("SupplierPaís"),
+            municipio=parties.get("SupplierMunicipio")
         ).on_conflict_do_update(
             index_elements=["tenant_id", "document_id", "role"],
             set_={
                 "razon_social": insert(Party).excluded.razon_social,
                 "nit": insert(Party).excluded.nit,
-                "correo": insert(Party).excluded.correo
+                "correo": insert(Party).excluded.correo,
+                "pais": insert(Party).excluded.pais,
+                "municipio": insert(Party).excluded.municipio
             }
         )
         session.execute(sup_stmt)
@@ -296,13 +300,17 @@ def upsert_document_with_lines(
             role="customer",
             razon_social=parties.get("CustomerRazónSocial"),
             nit=parties.get("ReceiverNIT"),
-            correo=parties.get("CustomerCorreo")
+            correo=parties.get("CustomerCorreo"),
+            pais=parties.get("CustomerPaís"),
+            municipio=parties.get("CustomerMunicipio")
         ).on_conflict_do_update(
             index_elements=["tenant_id", "document_id", "role"],
             set_={
                 "razon_social": insert(Party).excluded.razon_social,
                 "nit": insert(Party).excluded.nit,
-                "correo": insert(Party).excluded.correo
+                "correo": insert(Party).excluded.correo,
+                "pais": insert(Party).excluded.pais,
+                "municipio": insert(Party).excluded.municipio
             }
         )
         session.execute(cus_stmt)

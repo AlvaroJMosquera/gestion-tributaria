@@ -129,9 +129,13 @@ class FacturaProcessor:
         parties = {
             "SupplierRazónSocial": fila.get("SupplierRazónSocial"),
             "SupplierCorreo": fila.get("SupplierCorreo"),
+            "SupplierPaís": fila.get("SupplierPaís"),
+            "SupplierMunicipio": fila.get("SupplierMunicipio"),
             "SenderNIT": fila.get("SenderNIT") or fila.get("SupplierNIT"),
             "CustomerRazónSocial": fila.get("CustomerRazónSocial"),
             "CustomerCorreo": fila.get("CustomerCorreo"),
+            "CustomerPaís": fila.get("CustomerPaís"),
+            "CustomerMunicipio": fila.get("CustomerMunicipio"),
             "ReceiverNIT": fila.get("ReceiverNIT") or fila.get("CustomerNIT"),
         }
         return md_doc, parties
@@ -769,26 +773,28 @@ class FacturaProcessor:
             return
 
         try:
-            # 1️⃣ Crear batch una sola vez
+            # 1️⃣ Crear batch y procesar las facturas en UNA SOLA CONEXIÓN
             batch_name = f"run_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            
             with get_session() as session:
                 batch = save_batch(session, filename=batch_name, status="queued", tenant_id=self.tenant_id)
                 session.flush()
                 batch_id = batch.id
                 self.log(f"Batch creado: {batch_name} (id={batch_id})")
 
-            # 2️⃣ Procesar cada factura con commit independiente
-            for idx, (file_name, df_doc) in enumerate(all_dfs, start=1):
-                try:
-                    with get_session() as session:
+                # 2️⃣ Procesar cada factura con commit anidado (savepoint)
+                for idx, (file_name, df_doc) in enumerate(all_dfs, start=1):
+                    try:
+                        # begin_nested() para aislar la factura actual y no tumbar todo el batch en caso de error
                         with session.begin_nested():
                             self.persistir_df_en_bd(session, batch_id, df_doc, self.tenant_id, file_name)
+                        self.log(f"Factura {idx}/{total_facturas} subida: {file_name} ✅")
+                    except Exception as e:
+                        errores.append({'Archivo XML': file_name, 'Estado': f'Error al insertar BD: {e}'})
+                        self.log(f"❌ Error BD ({idx}/{total_facturas}): {file_name} - {str(e)}")
 
-                    self.log(f"Factura {idx}/{total_facturas} subida y confirmada: {file_name} ✅")
-
-                except Exception as e:
-                    errores.append({'Archivo XML': file_name, 'Estado': f'Error al insertar BD: {e}'})
-                    self.log(f"❌ Error BD ({idx}/{total_facturas}): {file_name} - {str(e)}")
+                # Hacemos commit final del batch y todas las facturas procesadas correctamente
+                session.commit()
 
             # 3️⃣ Guardar errores BD si existen
             if errores:

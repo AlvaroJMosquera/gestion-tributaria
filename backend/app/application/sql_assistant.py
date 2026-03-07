@@ -4,7 +4,8 @@ import json
 import time
 from datetime import date, timedelta
 
-import ollama
+from google import genai
+from google.genai import types
 from sqlalchemy import text
 from backend.app.infrastructure.db.db_config import get_engine
 
@@ -236,6 +237,13 @@ def normalize_temporal_span(q: str) -> str:
         d2 = today + timedelta(days=1)
         q = re.sub(r"\bhoy\b", f"entre {d1.isoformat()} y {d2.isoformat()}", q, flags=re.I)
 
+    # Identificar si de manera explícita piden un año (ej. "del 2025", "en 2024", "para 2025")
+    m_year = re.search(r"\b(?:del|de|en|para)\s*(el\s*)?([2][0][0-9]{2})\b", q, re.I)
+    if m_year:
+        found_year = int(m_year.group(2))
+        d1, d2 = _first_day_of_year(found_year), _first_day_next_year(found_year)
+        q = re.sub(m_year.group(0), f"entre {d1.isoformat()} y {d2.isoformat()}", q, flags=re.I)
+
     for patt, repl in replacements:
         q = re.sub(patt, repl, q, flags=re.I)
 
@@ -365,7 +373,7 @@ def _want_invoices_only(q_lower: str) -> bool:
 def _extract_name_candidate(q: str) -> str | None:
     s = re.sub(NIT_RE, " ", q)
     s = re.sub(
-        r"traeme|tráeme|muestrame|muéstrame|las|los|de|un|una|en|específico|especifico|por|nit|proveedor|provedor|cliente|empresa|facturas|factura|el|la",
+        r"\b(traeme|tráeme|muestrame|muéstrame|las|los|de|del|al|un|una|en|específico|especifico|por|nit|proveedor|provedor|cliente|empresa|facturas|factura|el|la)\b",
         " ",
         s,
         flags=re.I,
@@ -467,8 +475,8 @@ class SQLAssistant:
     - Guardas tenant_id automáticas
     - Bloqueo DDL por seguridad; por defecto solo SELECT/WITH
     """
-    DEFAULT_SQL_MODEL = "llama3.1"
-    DEFAULT_TEXT_MODEL = "gemma3:12b"
+    DEFAULT_SQL_MODEL = "gemini-2.5-flash"
+    DEFAULT_TEXT_MODEL = "gemini-2.5-flash"
 
     # Seguridad: solo lectura (recomendado)
     ALLOWED_SQL_PREFIX = re.compile(r"(?is)^\s*(SELECT|WITH)\b")
@@ -528,8 +536,10 @@ Devuelve SOLO UNA sentencia SQL ejecutable (sin explicaciones, sin markdown).
                 tax_rate numeric, tax_amount numeric, tenant_id uuid, tax_rate_key numeric, line_id_norm bigint)
 - errors(id bigint PK, batch_id bigint?, document_id bigint?, archivo varchar, detalle text, tenant_id uuid)
 
-### Reglas críticas:
+### Reglas críticas y Errores Comunes que Debes Evitar:
 - NO agregues filtros tenant_id: el sistema los inyecta automáticamente.
+- El campo `tax_code` es de tipo TEXT, nunca INTEGER. Si omites comillas simples dará error (Operator does not exist: text = integer). SIEMPRE USAR COMILLAS SIMPLES, ejemplo: dt.tax_code = '1'
+- Búsqueda de texto (productos/nombres): NUNCA uses coincidencia exacta (`=`). SIEMPRE usa `ILIKE '%texto%'` para evitar que fallen búsquedas parciales. (Ej: `l.producto ILIKE '%cable%'` en vez de `= 'cable'`).
 - Enum/estado/tipo: SIEMPRE compara con LOWER(campo::text). Ejemplos:
   • Facturas de venta: LOWER(d.document_type::text) = 'invoice'
   • Notas: LOWER(d.document_type::text) IN ('credit_note','debit_note')
@@ -540,14 +550,15 @@ Devuelve SOLO UNA sentencia SQL ejecutable (sin explicaciones, sin markdown).
   • Base → SUM(l.base)
   • Total a pagar (si aplica) → SUM(d.lm_total_a_pagar) o d.lm_total_a_pagar según agrupación
 - Impuestos:
-  • Si se pide impuesto, usa JOIN document_taxes dt ON dt.document_id = d.id
-  • Si el usuario menciona ICUI/IBUA/INPP: filtra dt.tax_code='35'/'34'/'33' respectivamente (prioridad sobre IC/ICA).
+  • Si se pide un impuesto, SIEMPRE usa JOIN document_taxes dt ON dt.document_id = d.id (No unas a `lines l` si no es necesario para evitar duplicaciones por producto).
+  • Si el usuario menciona ICUI/IBUA/INPP: filtra dt.tax_code = '35', dt.tax_code = '34' o dt.tax_code = '33'.
   • Si se menciona porcentaje (p.ej. 4%), filtra dt.tax_rate = 4.
 - JOIN típico montos: documents d JOIN lines l ON l.document_id = d.id
 - Fechas en d.issue_date:
   • Este año / este mes usa date_trunc(...)
-  • Rangos 'YYYY-MM-DD' respétalos tal cual.
-- Evita SELECT * si es posible.
+  • Rangos 'YYYY-MM-DD' respétalos tal cual. (Usa BETWEEN o >= AND <=).
+- Evita SELECT * si es posible. 
+- Al pedir "facturas", trae `d.id, d.document_id, d.issue_date` en el SELECT.
 - Devuelve solo 1 sentencia SQL.
 
 Pregunta: "{question}"
@@ -558,29 +569,96 @@ Responde en JSON estricto:
 
         model_to_use = self.model or self.DEFAULT_SQL_MODEL
 
-        try:
-            resp = ollama.chat(
-                model=model_to_use,
-                messages=[{"role": "user", "content": prompt}],
-                options={"temperature": 0},
-                format="json",
-                keep_alive="5m",
-            )
-            raw = resp["message"]["content"]
-            data = json.loads(raw)
-            sql = (data.get("sql", "") or "").strip()
-        except Exception:
-            resp = ollama.chat(
-                model=model_to_use,
-                messages=[{"role": "user", "content": prompt}],
-                options={"temperature": 0},
-                keep_alive="5m",
-            )
-            raw = (resp["message"]["content"] or "").strip()
-            sql = extract_sql_only(raw)
+        def call_ollama_fallback(prompt_text: str) -> str:
+            import urllib.request
+            import urllib.error
+            url = "http://localhost:11434/api/generate"
+            data = {
+                "model": "llama3.1",
+                "prompt": prompt_text,
+                "stream": False,
+                "format": "json"
+            }
+            req = urllib.request.Request(url, data=json.dumps(data).encode('utf-8'),
+                                         headers={'Content-Type': 'application/json'})
+            try:
+                with urllib.request.urlopen(req, timeout=30) as response:
+                    res_body = response.read().decode('utf-8')
+                    res_json = json.loads(res_body)
+                    return res_json.get("response", "")
+            except Exception as e:
+                print(f"Error en Ollama fallback: {e}")
+                return ""
 
-        if isinstance(sql, str) and sql.startswith("```"):
-            sql = extract_sql_only(sql)
+        def check_internet():
+            import urllib.request
+            try:
+                urllib.request.urlopen("http://www.google.com", timeout=2)
+                return True
+            except Exception:
+                return False
+
+        if self.model == "llama3.1":
+            print("Usuario seleccionó explícitamente Llama 3.1 local.")
+            raw = call_ollama_fallback(prompt)
+            try:
+                data = json.loads(raw)
+                sql = (data.get("sql", "") or "").strip()
+            except:
+                sql = extract_sql_only(raw)
+        elif check_internet():
+            print(f"Internet detectado. Usando Gemini ({model_to_use}).")
+            client = genai.Client()
+            try:
+                resp = client.models.generate_content(
+                    model=model_to_use,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        response_mime_type="application/json",
+                        temperature=0.0,
+                    )
+                )
+                raw = resp.text
+                data = json.loads(raw)
+                sql = (data.get("sql", "") or "").strip()
+            except Exception:
+                try:
+                    resp = client.models.generate_content(
+                        model=model_to_use,
+                        contents=prompt,
+                        config=types.GenerateContentConfig(
+                            temperature=0.0,
+                        )
+                    )
+                    raw = (resp.text or "").strip()
+                    sql = extract_sql_only(raw)
+                except Exception as e:
+                    print(f"Error con Gemini a pesar de tener internet: {e}. Usando Ollama Llama 3.1 fallback.")
+                    raw = call_ollama_fallback(prompt)
+                    try:
+                        data = json.loads(raw)
+                        sql = (data.get("sql", "") or "").strip()
+                    except:
+                        sql = extract_sql_only(raw)
+        else:
+            print("No hay conexión a internet. Usando Ollama (llama3.1) como fallback automático.")
+            raw = call_ollama_fallback(prompt)
+            try:
+                data = json.loads(raw)
+                sql = (data.get("sql", "") or "").strip()
+            except:
+                sql = extract_sql_only(raw)
+
+        if isinstance(sql, str):
+            if sql.startswith("```"):
+                sql = extract_sql_only(sql)
+            
+            # Post-procesamiento para errores comunes del Llama 3.1
+            # Corrige: dt.tax_code = 1 -> dt.tax_code = '1'
+            sql = re.sub(r"(?i)(tax_code\s*=\s*)(\d+)(?!\')", r"\g<1>'\g<2>'", sql)
+            # Elimina JOIN innecesario a `lines l` si hace JOIN con `document_taxes dt` sin usar `l.`
+            if re.search(r"(?i)JOIN\s+lines\s+[A-Za-z0-9_]+\s+ON", sql) and not re.search(r"(?i)\bl\.[a-z_]+", sql.replace("l.document_id", "")):
+                pass # Lógica más compleja requerida para sanear JOINs, se omitirá por seguridad
 
         sql = enforce_tenant_guards(sql, str(self.tenant_id))
         sql = fix_agg_order_limit(sql, str(self.tenant_id))
@@ -611,12 +689,16 @@ Responde en JSON estricto:
     # -----------------------------
     # Flujo completo pregunta → SQL → respuesta
     # -----------------------------
-    def ask(self, question: str) -> str:
+    def ask(self, question: str, model_option: str = "Automático (Recomendado)") -> str:
         q = question or ""
         q_lower = q.lower().strip()
 
-        # Router automático si no fijas modelo
-        if self.model is None:
+        # Router automático si no fijas modelo, o si es automático
+        if "Llama 3.1" in model_option:
+            self.model = "llama3.1"
+        elif "Gemini" in model_option:
+            self.model = self._pick_model(q_lower)
+        else:
             self.model = self._pick_model(q_lower)
 
         # Saludos / ayuda

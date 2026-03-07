@@ -2,10 +2,20 @@
 import os
 from contextlib import contextmanager
 from typing import Generator
+from pathlib import Path
 
-from sqlalchemy import create_engine, event
+from dotenv import load_dotenv
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
+# ======================================================
+# Cargar .env desde la raíz del proyecto
+# ======================================================
+_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
+load_dotenv(_ROOT / ".env")
+
+# ======================================================
+# URL desde variable de entorno
 # ======================================================
 DATABASE_URL = os.getenv("DATABASE_URL")
 
@@ -15,6 +25,7 @@ if not DATABASE_URL:
         "   Crea un archivo .env en la raíz del proyecto con:\n"
         "   DATABASE_URL=postgresql+psycopg2://usuario:pass@host:5432/db?sslmode=require"
     )
+
 # ======================================================
 # Tenant context (variable de sesión en PostgreSQL)
 # ======================================================
@@ -47,12 +58,11 @@ def get_engine():
 
         _engine = create_engine(
             DATABASE_URL,
-            pool_pre_ping=True,  # evita conexiones muertas
+            pool_pre_ping=True,
             pool_size=5,
             max_overflow=10,
         )
 
-        # 🔑 Aplica tenant automáticamente en cada conexión
         event.listen(_engine, "connect", _on_connect)
 
     return _engine
@@ -79,3 +89,13 @@ def create_all():
     """Crear todas las tablas declaradas en models.py"""
     eng = get_engine()
     Base.metadata.create_all(eng)
+    
+    # Crear extensión pg_trgm y la vista v_parties_index para búsquedas de similitud
+    with eng.begin() as conn:
+        conn.execute(text("CREATE EXTENSION IF NOT EXISTS pg_trgm;"))
+        conn.execute(text('''
+            CREATE OR REPLACE VIEW v_parties_index AS 
+            SELECT DISTINCT nit, razon_social, role 
+            FROM parties 
+            WHERE razon_social IS NOT NULL AND razon_social <> '';
+        '''))

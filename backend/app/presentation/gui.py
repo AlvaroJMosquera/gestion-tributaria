@@ -285,10 +285,22 @@ class ProcessorApp:
         entry_frame.grid(row=1, column=0, columnspan=2, sticky="ew")
         entry_frame.columnconfigure(0, weight=1)
 
+        # Combo para seleccionar modelo
+        self.ai_model_var = ttk.StringVar(value="Automático (Recomendado)")
+        self.cb_ai_model = ttk.Combobox(
+            entry_frame,
+            textvariable=self.ai_model_var,
+            values=["Automático (Recomendado)", "Solo Gemini (Nube)", "Solo Llama 3.1 (Local)"],
+            state="readonly",
+            width=25,
+            font=("Arial", 9)
+        )
+        self.cb_ai_model.grid(row=0, column=0, sticky="w", padx=(0, 5))
+
         self.chat_entry = ttk.Entry(
             entry_frame, font=("Arial", 10), state="disabled"
         )
-        self.chat_entry.grid(row=0, column=0, sticky="ew", padx=(0, 8))
+        self.chat_entry.grid(row=0, column=1, sticky="ew", padx=(0, 8))
         self.chat_entry.bind("<Return>", lambda e: self.enviar_pregunta())
         self.btn_enviar = ttk.Button(
             entry_frame,
@@ -298,7 +310,7 @@ class ProcessorApp:
             width=14,
             state="disabled",
         )
-        self.btn_enviar.grid(row=0, column=1)
+        self.btn_enviar.grid(row=0, column=2)
 
         # Mensaje inicial neutral
         self._append_chat(
@@ -450,7 +462,8 @@ class ProcessorApp:
 
         def _proc():
             try:
-                respuesta = self.assistant.ask(pregunta)
+                selected_model_option = self.ai_model_var.get()
+                respuesta = self.assistant.ask(pregunta, model_option=selected_model_option)
                 msg_ok = f"🤖 Asistente: {respuesta}"
                 # IMPORTANTE: Usar self.root.after() para actualizar UI
                 self.root.after(0, lambda: self._finish_chat(msg_ok))
