@@ -482,10 +482,11 @@ class SQLAssistant:
     ALLOWED_SQL_PREFIX = re.compile(r"(?is)^\s*(SELECT|WITH)\b")
     BLOCKED_PREFIX = re.compile(r"(?is)^\s*(CREATE|ALTER|DROP|TRUNCATE|GRANT|REVOKE)\b")
 
-    def __init__(self, tenant_id, model: str | None = None):
+    def __init__(self, tenant_id, model: str | None = None, api_key: str | None = None):
         self.engine = get_engine()
         self.model = model  # si None, se rutea automático por pregunta
         self.tenant_id = tenant_id
+        self.api_key = api_key
         self.last_query_context = None
 
     def _pick_model(self, q_lower: str) -> str:
@@ -608,7 +609,13 @@ Responde en JSON estricto:
                 sql = extract_sql_only(raw)
         elif check_internet():
             print(f"Internet detectado. Usando Gemini ({model_to_use}).")
-            client = genai.Client()
+            
+            # Usar API Key de la DB si se proveyó
+            if self.api_key:
+                client = genai.Client(api_key=self.api_key)
+            else:
+                client = genai.Client()
+
             try:
                 resp = client.models.generate_content(
                     model=model_to_use,
@@ -621,6 +628,7 @@ Responde en JSON estricto:
                 raw = resp.text
                 data = json.loads(raw)
                 sql = (data.get("sql", "") or "").strip()
+                sql = sql.rstrip('}').rstrip('"').rstrip()
             except Exception:
                 try:
                     resp = client.models.generate_content(
@@ -638,6 +646,7 @@ Responde en JSON estricto:
                     try:
                         data = json.loads(raw)
                         sql = (data.get("sql", "") or "").strip()
+                        sql = sql.rstrip('}').rstrip('"').rstrip()
                     except:
                         sql = extract_sql_only(raw)
         else:
@@ -646,6 +655,7 @@ Responde en JSON estricto:
             try:
                 data = json.loads(raw)
                 sql = (data.get("sql", "") or "").strip()
+                sql = sql.rstrip('}').rstrip('"').rstrip()
             except:
                 sql = extract_sql_only(raw)
 
@@ -730,7 +740,7 @@ Responde en JSON estricto:
                 rows = conn.execute(text(sql)).mappings().all()
             t1 = time.perf_counter()
             db_ms = int((t1 - t0) * 1000)
-            perf = f"\n⏱️ LLM: 0 ms · DB: {db_ms} ms · Total: {db_ms} ms\n🧠 SQL:\n{sql}"
+            perf = ""
 
             if not rows:
                 return "📢 No encontré facturas tipo invoice." + perf
@@ -760,7 +770,7 @@ Responde en JSON estricto:
                 rows = conn.execute(text(sql), {"nit": explicit_nit}).mappings().all()
             t1 = time.perf_counter()
             db_ms = int((t1 - t0) * 1000)
-            perf = f"\n⏱️ LLM: 0 ms · DB: {db_ms} ms · Total: {db_ms} ms\n🧠 SQL:\n{sql}"
+            perf = ""
 
             if rows:
                 out = [
@@ -789,7 +799,7 @@ Responde en JSON estricto:
                     rows = conn.execute(text(sql), {"nit": explicit_nit}).mappings().all()
                     t1 = time.perf_counter()
                     db_ms = int((t1 - t0) * 1000)
-                    perf = f"\n⏱️ LLM: 0 ms · DB: {db_ms} ms · Total: {db_ms} ms\n🧠 SQL:\n{sql}"
+                    perf = ""
 
                     if rows:
                         respuesta = f"📊 Encontré {len(rows)} factura(s) para NIT {explicit_nit}:\n\n"
@@ -822,7 +832,7 @@ Responde en JSON estricto:
 
                         t1 = time.perf_counter()
                         db_ms = int((t1 - t0) * 1000)
-                        perf = f"\n⏱️ LLM: 0 ms · DB: {db_ms} ms · Total: {db_ms} ms\n🧠 SQL:\n{sql}"
+                        perf = ""
 
                         if rows:
                             encabezado = f"🔎 ¿Quisiste decir **{top['razon_social']}** (NIT {top['nit']})?\n\n"
@@ -854,7 +864,7 @@ Responde en JSON estricto:
             gen_ms = int((t1 - t0) * 1000)
             db_ms = int((t2 - t1) * 1000)
             total_ms = int((t2 - t0) * 1000)
-            perf = f"\n⏱️ LLM: {gen_ms} ms · DB: {db_ms} ms · Total: {total_ms} ms\n🧠 SQL:\n{sql}"
+            perf = ""
 
             if not rows:
                 return "📢 No encontré registros que coincidan con la consulta." + perf
@@ -882,4 +892,6 @@ Responde en JSON estricto:
             return respuesta.strip() + perf
 
         except Exception as e:
-            return f"❌ Error ejecutando la consulta: {e}\n\n🧠 SQL:\n{sql}"
+            # Manejo controlado de errores para producción
+            print(f"Error interno (no mostrado al usuario): {e}") # Log interno para debug
+            return "📢 Lo siento, ocurrió un error interno al intentar consultar tu información. Por favor, intenta reformular tu pregunta de otra forma."

@@ -99,7 +99,10 @@ class LoginWindow:
 
             self.tenant_id = str(user["tenant_id"])
             set_current_tenant(self.tenant_id)
-            self.assistant = SQLAssistant(self.tenant_id)
+            
+            # Pasar la llave de la BD extraída si está disponible
+            gemini_key = user.get("gemini_api_key")
+            self.assistant = SQLAssistant(self.tenant_id, api_key=gemini_key)
 
             self.status_lbl.configure(text=f"Bienvenido, {user.get('usuario_nombre', email)}",bootstyle="success")
 

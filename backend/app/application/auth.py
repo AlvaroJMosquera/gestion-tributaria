@@ -15,7 +15,8 @@ def login_user(email, password):
                         u.tenant_id,
                         u.email,
                         u.nombre AS usuario_nombre,
-                        t.nombre AS tenant_nombre
+                        t.nombre AS tenant_nombre,
+                        t.gemini_api_key
                     FROM public.usuarios u
                     JOIN public.tenants t ON t.id = u.tenant_id
                     WHERE u.email = :email
@@ -41,7 +42,8 @@ def login_user(email, password):
                 "tenant_id": row["tenant_id"],
                 "email": row["email"],
                 "usuario_nombre": row["usuario_nombre"],
-                "tenant_nombre": row["tenant_nombre"]
+                "tenant_nombre": row["tenant_nombre"],
+                "gemini_api_key": row["gemini_api_key"]
                 }
 
         except Exception:

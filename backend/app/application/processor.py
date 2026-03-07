@@ -26,6 +26,10 @@ class FacturaProcessor:
         self.tenant_id = tenant_id
         self.root_window = root_window  # ⭐ Nueva: referencia al root
 
+        # Controladores de estado (Pausar / Cancelar)
+        self.pause_event = threading.Event()
+        self.cancel_event = threading.Event()
+
         # Crear carpeta de salida si no existe
         self.carpeta_salida.mkdir(parents=True, exist_ok=True)
 
@@ -671,6 +675,123 @@ class FacturaProcessor:
 
         return df_total
 
+    def _generar_resumen_cuatrimestral(self, df: pd.DataFrame) -> pd.DataFrame:
+        if df.empty or 'IssueDate' not in df.columns:
+            return pd.DataFrame()
+
+        df_calc = df.copy()
+        df_calc['IssueDate_dt'] = pd.to_datetime(df_calc['IssueDate'], errors='coerce')
+        df_calc = df_calc.dropna(subset=['IssueDate_dt'])
+
+        if df_calc.empty:
+            return pd.DataFrame()
+
+        df_calc['Año'] = df_calc['IssueDate_dt'].dt.year
+        df_calc['Mes'] = df_calc['IssueDate_dt'].dt.month
+        df_calc['Cuatrimestre'] = ((df_calc['Mes'] - 1) // 4) + 1
+        df_calc['Periodo'] = df_calc['Año'].astype(str) + "-C" + df_calc['Cuatrimestre'].astype(str)
+
+        # Identificar qué columnas sumar (Base, impuestos, total por linea, etc.)
+        cols_a_sumar = []
+        for c in df_calc.columns:
+            if not pd.api.types.is_numeric_dtype(df_calc[c]):
+                continue
+            if c in ['Año', 'Mes', 'Cuatrimestre', 'Cantidad', 'Valor Unitario', 'Descuento', 'Base']:
+                continue
+            if str(c).startswith('LM_') or str(c).startswith('Total_') or str(c).startswith('__code__'):
+                continue
+            if str(c).endswith(' (%)'):
+                continue
+            cols_a_sumar.append(c)
+
+        # Restar los montos si es una nota crédito
+        if 'DocumentType' in df_calc.columns and cols_a_sumar:
+            es_nc = df_calc['DocumentType'].astype(str).str.lower().str.contains('credit')
+            for c in cols_a_sumar:
+                df_calc.loc[es_nc, c] = df_calc.loc[es_nc, c].astype(float) * -1
+
+        if cols_a_sumar:
+            # Agrupar por Periodo (ej: 2024-C1, 2024-C2)
+            resumen = df_calc.groupby('Periodo')[cols_a_sumar].sum(numeric_only=True).reset_index()
+            # Formato transpuesto para que "Concepto" sean filas
+            resumen_t = resumen.set_index('Periodo').T
+            resumen_t.index.name = 'Concepto (Impuesto / Base)'
+            resumen_t = resumen_t.reset_index()
+            
+            # Limpiar filas donde todos los cuatrimestres sean 0
+            val_cols = resumen_t.columns[1:]
+            resumen_t = resumen_t[(resumen_t[val_cols].abs().sum(axis=1)) > 0.01].copy()
+            
+            return resumen_t
+
+        return pd.DataFrame()
+
+    def _generar_resumen_proveedores(self, df: pd.DataFrame, is_clientes: bool = False) -> pd.DataFrame:
+        nit_col = 'ReceiverNIT' if is_clientes else 'SenderNIT'
+        name_col = 'CustomerRazónSocial' if is_clientes else 'SupplierRazónSocial'
+        
+        if df.empty or 'IssueDate' not in df.columns or nit_col not in df.columns:
+            return pd.DataFrame()
+
+        df_calc = df.copy()
+        
+        # Opcional: Si el usuario quiere ver "Facturas Mías = Ventas", normalmente en Colombia el archivo de venta
+        # tiene 'SenderNIT' igual al NIT del usuario que extrae. 
+        # Aquí agruparemos asumiendo la dirección que nos piden: 
+        # Si es_clientes = True -> Queremos agrupar por el NIT del Cliente (ReceiverNIT)
+        # Si es_clientes = False -> Queremos agrupar por el NIT del Proveedor (SenderNIT)
+        
+        df_calc['IssueDate_dt'] = pd.to_datetime(df_calc['IssueDate'], errors='coerce')
+        df_calc = df_calc.dropna(subset=['IssueDate_dt'])
+
+        if df_calc.empty:
+            return pd.DataFrame()
+
+        df_calc['Año'] = df_calc['IssueDate_dt'].dt.year
+        df_calc['Mes'] = df_calc['IssueDate_dt'].dt.month
+        df_calc['Cuatrimestre'] = ((df_calc['Mes'] - 1) // 4) + 1
+        df_calc['Periodo'] = df_calc['Año'].astype(str) + "-C" + df_calc['Cuatrimestre'].astype(str)
+
+        if 'DocumentType' in df_calc.columns and 'Total' in df_calc.columns:
+            es_nc = df_calc['DocumentType'].astype(str).str.lower().str.contains('credit')
+            df_calc.loc[es_nc, 'Total'] = df_calc.loc[es_nc, 'Total'].astype(float) * -1
+
+        df_calc[nit_col] = df_calc[nit_col].fillna('Sin NIT')
+        
+        if name_col in df_calc.columns:
+            df_calc[name_col] = df_calc[name_col].fillna('Sin Razón Social')
+            agrupacion = ['Periodo', nit_col, name_col]
+        else:
+            agrupacion = ['Periodo', nit_col]
+
+        if 'Total' in df_calc.columns:
+            resumen = df_calc.groupby(agrupacion)['Total'].sum(numeric_only=True).reset_index()
+            if name_col in df_calc.columns:
+                resumen_pivot = resumen.pivot_table(
+                    index=[nit_col, name_col], 
+                    columns='Periodo', 
+                    values='Total', 
+                    aggfunc='sum',
+                    fill_value=0
+                ).reset_index()
+            else:
+                resumen_pivot = resumen.pivot_table(
+                    index=[nit_col], 
+                    columns='Periodo', 
+                    values='Total', 
+                    aggfunc='sum',
+                    fill_value=0
+                ).reset_index()
+
+            val_cols = [c for c in resumen_pivot.columns if c not in [nit_col, name_col]]
+            if val_cols:
+                resumen_pivot['Acumulado_Total'] = resumen_pivot[val_cols].sum(axis=1)
+                resumen_pivot = resumen_pivot.sort_values(by='Acumulado_Total', ascending=False).drop(columns=['Acumulado_Total'])
+
+            return resumen_pivot
+
+        return pd.DataFrame()
+
     def _show_messagebox(self, msgtype: str, title: str, message: str):
         """Muestra messagebox thread-safe usando root.after()"""
         if self.root_window and self.root_window.winfo_exists():
@@ -681,7 +802,27 @@ class FacturaProcessor:
             elif msgtype == "warning":
                 self.root_window.after(0, lambda: messagebox.showwarning(title, message))
 
+    def _verificar_pausa_y_cancelacion(self) -> bool:
+        """Pausa el hilo si está en pausa, o retorna True si debe cancelarse."""
+        if self.cancel_event.is_set():
+            return True
+            
+        if self.pause_event.is_set():
+            self.log("⏸️ Proceso pausado. Esperando para reanudar...")
+            while self.pause_event.is_set():
+                if self.cancel_event.is_set():
+                    return True
+                import time
+                time.sleep(0.5)
+            self.log("▶️ Proceso reanudado.")
+            
+        return False
+
     def ejecutar_proceso(self, persist_db: bool = True):
+        # Reiniciar eventos al iniciar
+        self.pause_event.clear()
+        self.cancel_event.clear()
+        
         load_dotenv()
 
         self.log("Iniciando procesamiento de facturas XML...")
@@ -698,6 +839,11 @@ class FacturaProcessor:
 
         encontrados = 0
         for nombre_logico, xml_text in self._iter_xmls_from_path(self.carpeta_entrada, max_depth=5):
+            if self._verificar_pausa_y_cancelacion():
+                self.log("🛑 Proceso cancelado por el usuario (Fase A).")
+                self._show_messagebox("warning", "Cancelado", "El procesamiento fue cancelado por el usuario.")
+                return
+
             encontrados += 1
             self.log(f"Procesando: {nombre_logico}")
             try:
@@ -751,8 +897,20 @@ class FacturaProcessor:
             archivo_errores = self.carpeta_salida / f'errores_{ts}.xlsx' if errores else None
 
             df_total_pd = df_total.to_pandas()
+            df_cuatrimestral = self._generar_resumen_cuatrimestral(df_total_pd)
+            # Hoja de compras (Asumiendo que agrupamos por el NIT del Emisor / Proveedor)
+            df_proveedores_cuat = self._generar_resumen_proveedores(df_total_pd, is_clientes=False)
+            # Hoja de ventas (Asumiendo que agrupamos por el NIT del Receptor / Cliente)
+            df_clientes_cuat = self._generar_resumen_proveedores(df_total_pd, is_clientes=True)
+
             with pd.ExcelWriter(archivo_salida, engine="xlsxwriter") as writer:
                 df_total_pd.to_excel(writer, sheet_name="Facturas", index=False)
+                if not df_cuatrimestral.empty:
+                    df_cuatrimestral.to_excel(writer, sheet_name="Declaración (Cuatrimestral)", index=False)
+                if not df_proveedores_cuat.empty:
+                    df_proveedores_cuat.to_excel(writer, sheet_name="Compras x Proveedor (Cuat.)", index=False)
+                if not df_clientes_cuat.empty:
+                    df_clientes_cuat.to_excel(writer, sheet_name="Ventas x Cliente (Cuat.)", index=False)
 
             if errores:
                 pl.DataFrame(errores).write_excel(str(archivo_errores))
@@ -784,12 +942,18 @@ class FacturaProcessor:
 
                 # 2️⃣ Procesar cada factura con commit anidado (savepoint)
                 for idx, (file_name, df_doc) in enumerate(all_dfs, start=1):
+                    if self._verificar_pausa_y_cancelacion():
+                        self.log("🛑 Proceso cancelado por el usuario (Fase C - Base de datos).")
+                        self._show_messagebox("warning", "Cancelado", "El guardado en BD fue cancelado por el usuario.")
+                        return
+
+                    nested = session.begin_nested()
                     try:
-                        # begin_nested() para aislar la factura actual y no tumbar todo el batch en caso de error
-                        with session.begin_nested():
-                            self.persistir_df_en_bd(session, batch_id, df_doc, self.tenant_id, file_name)
+                        self.persistir_df_en_bd(session, batch_id, df_doc, self.tenant_id, file_name)
+                        nested.commit()
                         self.log(f"Factura {idx}/{total_facturas} subida: {file_name} ✅")
                     except Exception as e:
+                        nested.rollback()
                         errores.append({'Archivo XML': file_name, 'Estado': f'Error al insertar BD: {e}'})
                         self.log(f"❌ Error BD ({idx}/{total_facturas}): {file_name} - {str(e)}")
 

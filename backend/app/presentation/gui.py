@@ -214,16 +214,37 @@ class ProcessorApp:
         )
         self.rb_both.pack(anchor="w", pady=2)
 
+        # Contenedor para botones de control
+        control_frame = ttk.Frame(conf_outer)
+        control_frame.grid(row=3, column=0, columnspan=3, sticky="ew", pady=(4, 0))
+        control_frame.columnconfigure((0, 1, 2), weight=1)
+
         self.btn_procesar = ttk.Button(
-            conf_outer,
+            control_frame,
             text="🚀 Procesar Facturas",
-            bootstyle="success-outline",
+            bootstyle="success",
             command=self.iniciar_procesamiento,
             state="disabled",
         )
-        self.btn_procesar.grid(
-            row=3, column=0, columnspan=3, sticky="ew", pady=(4, 0)
+        self.btn_procesar.grid(row=0, column=0, sticky="ew", padx=2)
+
+        self.btn_pausar = ttk.Button(
+            control_frame,
+            text="⏸️ Pausar",
+            bootstyle="warning",
+            command=self.pausar_procesamiento,
+            state="disabled",
         )
+        self.btn_pausar.grid(row=0, column=1, sticky="ew", padx=2)
+
+        self.btn_cancelar = ttk.Button(
+            control_frame,
+            text="⏹️ Cancelar",
+            bootstyle="danger",
+            command=self.cancelar_procesamiento,
+            state="disabled",
+        )
+        self.btn_cancelar.grid(row=0, column=2, sticky="ew", padx=2)
 
         self.progress = ttk.Progressbar(
             conf_outer, bootstyle="success-striped", mode="indeterminate"
@@ -282,8 +303,8 @@ class ProcessorApp:
         chat_scroll.config(command=self.chat_history.yview)
 
         entry_frame = ttk.Frame(chat_outer)
-        entry_frame.grid(row=1, column=0, columnspan=2, sticky="ew")
-        entry_frame.columnconfigure(0, weight=1)
+        entry_frame.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(10, 5))
+        entry_frame.columnconfigure(1, weight=1) # El input de texto debe expandirse
 
         # Combo para seleccionar modelo
         self.ai_model_var = ttk.StringVar(value="Automático (Recomendado)")
@@ -292,16 +313,19 @@ class ProcessorApp:
             textvariable=self.ai_model_var,
             values=["Automático (Recomendado)", "Solo Gemini (Nube)", "Solo Llama 3.1 (Local)"],
             state="readonly",
-            width=25,
-            font=("Arial", 9)
+            width=22,
+            font=("Arial", 10)
         )
-        self.cb_ai_model.grid(row=0, column=0, sticky="w", padx=(0, 5))
+        self.cb_ai_model.grid(row=0, column=0, sticky="w", padx=(0, 10))
 
+        # Input de pregunta más grande y destacado
         self.chat_entry = ttk.Entry(
-            entry_frame, font=("Arial", 10), state="disabled"
+            entry_frame, font=("Arial", 12), state="disabled" 
         )
-        self.chat_entry.grid(row=0, column=1, sticky="ew", padx=(0, 8))
+        self.chat_entry.grid(row=0, column=1, sticky="ew", padx=(0, 10), ipady=5)
         self.chat_entry.bind("<Return>", lambda e: self.enviar_pregunta())
+        
+        # Botón de enviar también un poco más destacado
         self.btn_enviar = ttk.Button(
             entry_frame,
             text="📤 Enviar",
@@ -310,7 +334,7 @@ class ProcessorApp:
             width=14,
             state="disabled",
         )
-        self.btn_enviar.grid(row=0, column=2)
+        self.btn_enviar.grid(row=0, column=2, ipady=2)
 
         # Mensaje inicial neutral
         self._append_chat(
@@ -398,6 +422,8 @@ class ProcessorApp:
 
         self.processing = True
         self.btn_procesar.configure(state="disabled")
+        self.btn_pausar.configure(state="normal", text="⏸️ Pausar")
+        self.btn_cancelar.configure(state="normal")
         self.progress.start()
         self.log_text.delete(1.0, "end")
 
@@ -427,7 +453,38 @@ class ProcessorApp:
     def finalizar_proceso(self):
         self.processing = False
         self.progress.stop()
+        self.btn_pausar.configure(state="disabled", text="⏸️ Pausar")
+        self.btn_cancelar.configure(state="disabled")
         self._verificar_rutas()
+
+    def pausar_procesamiento(self):
+        if not self.processor:
+            return
+            
+        if self.processor.pause_event.is_set():
+            # Estaba pausado, reanudar
+            self.processor.pause_event.clear()
+            self.btn_pausar.configure(text="⏸️ Pausar", bootstyle="warning")
+            self.log("▶️ Reanudando proceso por el usuario...")
+        else:
+            # Estaba corriendo, pausar
+            self.processor.pause_event.set()
+            self.btn_pausar.configure(text="▶️ Reanudar", bootstyle="info")
+            self.log("⏸️ Proceso pausado por el usuario...")
+
+    def cancelar_procesamiento(self):
+        if not self.processor:
+            return
+            
+        # Preguntar confirmación opcional o simplemente cancelar
+        self.processor.cancel_event.set()
+        # Si estaba pausado, hay que soltarlo para que pueda evaluar la condición de cancel_event y salir
+        if self.processor.pause_event.is_set():
+            self.processor.pause_event.clear()
+            
+        self.log("⏹️ Instrucción de cancelación enviada, esperando que termine la operación actual...")
+        self.btn_cancelar.configure(state="disabled")
+        self.btn_pausar.configure(state="disabled")
 
     def log(self, mensaje: str):
         """Log thread-safe: puede ser llamado desde hilos secundarios."""
