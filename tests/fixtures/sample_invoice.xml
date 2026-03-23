@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+         xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+         xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
+    <cbc:ID>FV-100</cbc:ID>
+    <cbc:IssueDate>2026-03-22</cbc:IssueDate>
+    <cbc:InvoiceTypeCode>01</cbc:InvoiceTypeCode>
+    <cbc:UUID schemeName="CUFE-SHA384">1234567890abcdef_cufe</cbc:UUID>
+    
+    <cac:AccountingSupplierParty>
+        <cac:PartyTaxScheme><cbc:CompanyID>900123456</cbc:CompanyID></cac:PartyTaxScheme>
+        <cac:Party>
+            <cac:PartyLegalEntity>
+                <cbc:RegistrationName>Proveedor Ficticio S.A.S</cbc:RegistrationName>
+            </cac:PartyLegalEntity>
+        </cac:Party>
+    </cac:AccountingSupplierParty>
+    
+    <cac:AccountingCustomerParty>
+        <cac:PartyTaxScheme><cbc:CompanyID>800654321</cbc:CompanyID></cac:PartyTaxScheme>
+        <cac:Party>
+            <cac:PartyLegalEntity>
+                <cbc:RegistrationName>Cliente Ficticio LTDA</cbc:RegistrationName>
+            </cac:PartyLegalEntity>
+        </cac:Party>
+    </cac:AccountingCustomerParty>
+    
+    <cac:TaxTotal>
+        <cac:TaxSubtotal>
+            <cbc:TaxAmount>19000.00</cbc:TaxAmount>
+            <cac:TaxCategory>
+                <cbc:Percent>19.00</cbc:Percent>
+                <cac:TaxScheme>
+                    <cbc:ID>01</cbc:ID>
+                    <cbc:Name>IVA</cbc:Name>
+                </cac:TaxScheme>
+            </cac:TaxCategory>
+        </cac:TaxSubtotal>
+    </cac:TaxTotal>
+    
+    <cac:LegalMonetaryTotal>
+        <cbc:LineExtensionAmount>100000.00</cbc:LineExtensionAmount>
+        <cbc:TaxExclusiveAmount>100000.00</cbc:TaxExclusiveAmount>
+        <cbc:TaxInclusiveAmount>119000.00</cbc:TaxInclusiveAmount>
+        <cbc:PayableAmount>119000.00</cbc:PayableAmount>
+    </cac:LegalMonetaryTotal>
+    
+    <cac:InvoiceLine>
+        <cbc:ID>1</cbc:ID>
+        <cbc:InvoicedQuantity>2.0</cbc:InvoicedQuantity>
+        <cbc:LineExtensionAmount>100000.00</cbc:LineExtensionAmount>
+        <cac:TaxTotal>
+            <cac:TaxSubtotal>
+                <cbc:TaxAmount>19000.00</cbc:TaxAmount>
+                <cac:TaxCategory>
+                    <cbc:Percent>19.00</cbc:Percent>
+                    <cac:TaxScheme>
+                        <cbc:ID>01</cbc:ID>
+                        <cbc:Name>IVA</cbc:Name>
+                    </cac:TaxScheme>
+                </cac:TaxCategory>
+            </cac:TaxSubtotal>
+        </cac:TaxTotal>
+        <cac:Item>
+            <cbc:Description>Servicio de Consultoría</cbc:Description>
+        </cac:Item>
+        <cac:Price>
+            <cbc:PriceAmount>50000.00</cbc:PriceAmount>
+        </cac:Price>
+    </cac:InvoiceLine>
+</Invoice>

@@ -8,10 +8,16 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
+import sys
+
 # ======================================================
-# Cargar .env desde la raíz del proyecto
+# Cargar .env desde la raíz del proyecto o desde MEIPASS
 # ======================================================
-_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
+if getattr(sys, 'frozen', False):
+    _ROOT = Path(sys._MEIPASS)
+else:
+    _ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
+
 load_dotenv(_ROOT / ".env")
 
 # ======================================================
