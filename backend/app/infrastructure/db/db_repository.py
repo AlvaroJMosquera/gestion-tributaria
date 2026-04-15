@@ -76,6 +76,7 @@ def _iter_line_taxes(l: Dict[str, Any]):
     Recorre un diccionario de línea y devuelve tuplas (tax_name, tax_rate, tax_amount, tax_code).
     tax_rate es fracción (0.19) o None. tax_amount es numérico.
     """
+    taxes = []
     for k, v in l.items():
         if k in _FIXED_LINE_KEYS:
             continue
@@ -105,7 +106,21 @@ def _iter_line_taxes(l: Dict[str, Any]):
         # Buscamos el code compañero "__code__<NombreImpuesto>"
         code = l.get(f"__code__{k}", None)
 
-        yield k, rate, amt, code
+        taxes.append((k, rate, amt, code))
+        
+    # Filtrar agregados si ya hay desglosados (para evitar duplicar impuestos)
+    codes_with_rates = {t[3] for t in taxes if t[1] is not None and t[3] is not None}
+    
+    for t in taxes:
+        k, rate, amt, code = t
+        if rate is None:
+            # Si tiene código y ya está desglosado por tarifa, ignorar el agregado para no duplicar
+            if code is not None and code in codes_with_rates:
+                continue
+            # O si es como "IVA" y existe "IVA (19%)", ignorar
+            if any(other_k.startswith(f"{k} (") for other_k, _, _, _ in taxes if other_k != k):
+                continue
+        yield t
 
 def _iter_document_taxes(md_doc: Dict[str, Any]):
     """
@@ -325,6 +340,7 @@ def upsert_document_with_lines(
                 "tenant_id": tenant_id,
                 "line_no": idx,
                 "producto": l.get("Producto"),
+                "sku": l.get("SKU"),
                 "cantidad": _safe_float(l.get("Cantidad")),
                 "base": _safe_float(l.get("Base")),
                 "total": _safe_float(l.get("Total")),
@@ -336,6 +352,7 @@ def upsert_document_with_lines(
                 index_elements=["document_id", "line_no"],
                 set_={
                     "producto": insert(Line).excluded.producto,
+                    "sku": insert(Line).excluded.sku,
                     "cantidad": insert(Line).excluded.cantidad,
                     "base": insert(Line).excluded.base,
                     "total": insert(Line).excluded.total,

@@ -144,8 +144,36 @@ class FacturaProcessor:
         }
         return md_doc, parties
 
+    def parse_float(self, val: str | float | int | None) -> float:
+        if val is None or val == "":
+            return 0.0
+        if isinstance(val, (int, float)):
+            return float(val)
+
+        s = str(val).strip()
+        if ',' in s and '.' in s:
+            if s.rfind(',') > s.rfind('.'):
+                s = s.replace('.', '').replace(',', '.')
+            else:
+                s = s.replace(',', '')
+        elif ',' in s:
+            # Si hay múltiples comas, son miles
+            if s.count(',') > 1:
+                s = s.replace(',', '')
+            # Si hay una coma y 3 dígitos después, asumimos miles si no obedece el patrón de céntimos
+            elif len(s) - s.rfind(',') == 4:
+                s = s.replace(',', '')
+            else:
+                s = s.replace(',', '.')
+
+        try:
+            return float(s)
+        except ValueError:
+            return 0.0
+
     def _build_line_dict_from_row(self, fila: dict) -> dict:
         out = {
+            "SKU": fila.get("SKU", ""),
             "Producto": fila.get("Producto", ""),
             "Cantidad": fila.get("Cantidad", 0),
             "Base": fila.get("Base", 0),
@@ -161,7 +189,7 @@ class FacturaProcessor:
         if "__code__IVA" in fila:
             out["__code__IVA"] = fila.get("__code__IVA")
 
-        fixed = {"Producto", "Cantidad", "Valor Unitario", "Base", "Descuento", "Total", "IVA", "IVA (%)"}
+        fixed = {"SKU", "Producto", "Cantidad", "Valor Unitario", "Base", "Descuento", "Total", "IVA", "IVA (%)"}
         for k, v in fila.items():
             if not isinstance(k, str):
                 continue
@@ -210,12 +238,17 @@ class FacturaProcessor:
             if nodo is None:
                 continue
             party = nodo.find('cac:Party', self.NS)
-            datos[f'{role}RazónSocial'] = self.txt(party, 'cac:PartyLegalEntity/cbc:RegistrationName')
+            if party is None: continue
+            
+            datos[f'{role}RazónSocial'] = self.txt(party, 'cac:PartyLegalEntity/cbc:RegistrationName') or self.txt(party, 'cac:PartyName/cbc:Name')
             datos[f'{role}NombreComercial'] = self.txt(party, 'cac:PartyName/cbc:Name')
-            datos[f'{role}NIT'] = self.txt(nodo, 'cac:PartyTaxScheme/cbc:CompanyID')
+            
+            nit_val = self.txt(party, 'cac:PartyTaxScheme/cbc:CompanyID') or self.txt(party, 'cac:PartyIdentification/cbc:ID')
+            datos[f'{role}NIT'] = nit_val
+            
             datos[f'{role}TipoContribuyente'] = self.txt(party, 'cac:PartyTaxScheme/cbc:RegistrationName')
-            datos[f'{role}RégimenFiscal'] = self.txt(nodo, 'cac:PartyTaxScheme/cac:TaxScheme/cbc:ID')
-            datos[f'{role}ResponsabilidadTributaria'] = self.txt(nodo, 'cac:PartyTaxScheme/cac:TaxScheme/cbc:Name')
+            datos[f'{role}RégimenFiscal'] = self.txt(party, 'cac:PartyTaxScheme/cac:TaxScheme/cbc:ID')
+            datos[f'{role}ResponsabilidadTributaria'] = self.txt(party, 'cac:PartyTaxScheme/cac:TaxScheme/cbc:Name')
             datos[f'{role}ActividadEconomica'] = self.txt(party, 'cac:PartyTaxScheme/cbc:TaxLevelCode')
 
             addr = party.find('cac:PostalAddress', self.NS) or party.find('cac:PhysicalLocation/cac:Address', self.NS)
@@ -373,12 +406,18 @@ class FacturaProcessor:
 
         for ln in root.findall(f'.//cac:{line_tag}', self.NS):
             prod = ln.find('.//cac:Item/cbc:Description', self.NS)
-            qty = float(self.txt(ln, qty_tag) or 0)
-            pu = float(self.txt(ln, './/cac:Price/cbc:PriceAmount') or 0)
-            base = float(self.txt(ln, 'cbc:LineExtensionAmount') or 0)
-            dsc = float(self.txt(ln, './/cac:AllowanceCharge/cbc:Amount') or 0)
+            sku = (
+                self.txt(ln, './/cac:Item/cac:SellersItemIdentification/cbc:ID') or
+                self.txt(ln, './/cac:Item/cac:StandardItemIdentification/cbc:ID') or
+                self.txt(ln, './/cac:Item/cac:BuyersItemIdentification/cbc:ID')
+            )
+            qty = self.parse_float(self.txt(ln, qty_tag))
+            pu = self.parse_float(self.txt(ln, './/cac:Price/cbc:PriceAmount'))
+            base = self.parse_float(self.txt(ln, 'cbc:LineExtensionAmount'))
+            dsc = self.parse_float(self.txt(ln, './/cac:AllowanceCharge/cbc:Amount'))
 
             fila = {
+                'SKU': sku,
                 'Producto': prod.text.strip() if (prod is not None and prod.text) else '',
                 'Cantidad': qty,
                 'Valor Unitario': pu,
@@ -392,13 +431,10 @@ class FacturaProcessor:
             for ts in ln.findall('.//cac:TaxSubtotal', self.NS):
                 tax_id = self.txt(ts, 'cac:TaxCategory/cac:TaxScheme/cbc:ID')
                 tax_name = self.txt(ts, 'cac:TaxCategory/cac:TaxScheme/cbc:Name')
-                amount = float(self.txt(ts, 'cbc:TaxAmount') or 0)
+                amount = self.parse_float(self.txt(ts, 'cbc:TaxAmount'))
 
                 pct_raw = self.txt(ts, 'cac:TaxCategory/cbc:Percent')
-                try:
-                    pct = float(pct_raw) if pct_raw else None   # pct en porcentaje (19.0)
-                except ValueError:
-                    pct = None
+                pct = self.parse_float(pct_raw) if pct_raw else None
 
                 name = tax_name if tax_name else (f'Tax_{tax_id}' if tax_id else 'Unknown')
 
@@ -462,10 +498,10 @@ class FacturaProcessor:
         md_part = self.extraer_partes(root_main)
 
         sender_nodo = root_ad.find('.//cac:SenderParty/cac:PartyTaxScheme/cbc:CompanyID', self.NS)
-        md_part['SenderNIT'] = sender_nodo.text.strip() if (sender_nodo is not None and sender_nodo.text) else ''
+        md_part['SenderNIT'] = sender_nodo.text.strip() if (sender_nodo is not None and sender_nodo.text) else md_part.get('SupplierNIT', '')
 
         receiver_nodo = root_ad.find('.//cac:ReceiverParty/cac:PartyTaxScheme/cbc:CompanyID', self.NS)
-        md_part['ReceiverNIT'] = receiver_nodo.text.strip() if (receiver_nodo is not None and receiver_nodo.text) else ''
+        md_part['ReceiverNIT'] = receiver_nodo.text.strip() if (receiver_nodo is not None and receiver_nodo.text) else md_part.get('CustomerNIT', '')
 
         totales = self.extraer_totales_factura(root_main)
         md_all = {**md_doc, **md_part, **taxes_doc, **totales, 'CUFE': cufe, 'CUDE': cude, 'Archivo XML': nombre_archivo}
@@ -499,8 +535,8 @@ class FacturaProcessor:
             cufe, cude = self.extraer_cufe_cude(root)
             taxes_doc = self.extraer_taxes_document(root)
             md_part = self.extraer_partes(root)
-            md_part['SenderNIT'] = ''
-            md_part['ReceiverNIT'] = ''
+            md_part['SenderNIT'] = md_part.get('SupplierNIT', '')
+            md_part['ReceiverNIT'] = md_part.get('CustomerNIT', '')
 
             totales = self.extraer_totales_factura(root)
             md_all = {**md_doc, **md_part, **taxes_doc, **totales, 'CUFE': cufe, 'CUDE': cude, 'Archivo XML': nombre_archivo}
@@ -591,27 +627,27 @@ class FacturaProcessor:
         tot = {}
 
         # 3) Extraer campos (si no existen, quedan "")
-        tot["LM_Subtotal_Sin_Impuestos"] = txt_from(monetary, "cbc:LineExtensionAmount")
-        tot["LM_Descuentos"] = txt_from(monetary, "cbc:AllowanceTotalAmount")
+        tot["LM_Subtotal_Sin_Impuestos"] = self.parse_float(txt_from(monetary, "cbc:LineExtensionAmount"))
+        tot["LM_Descuentos"] = self.parse_float(txt_from(monetary, "cbc:AllowanceTotalAmount"))
 
         # Algunos documentos incluyen TaxExclusiveAmount (útil para auditoría)
-        tot["LM_Total_Sin_Impuestos"] = txt_from(monetary, "cbc:TaxExclusiveAmount")
+        tot["LM_Total_Sin_Impuestos"] = self.parse_float(txt_from(monetary, "cbc:TaxExclusiveAmount"))
 
-        tot["LM_Total_Con_Impuestos"] = txt_from(monetary, "cbc:TaxInclusiveAmount")
-        tot["LM_Total_A_Pagar"] = txt_from(monetary, "cbc:PayableAmount")
+        tot["LM_Total_Con_Impuestos"] = self.parse_float(txt_from(monetary, "cbc:TaxInclusiveAmount"))
+        tot["LM_Total_A_Pagar"] = self.parse_float(txt_from(monetary, "cbc:PayableAmount"))
 
         # Opcionales útiles (no rompen nada si no existen)
-        tot["LM_Cargos"] = txt_from(monetary, "cbc:ChargeTotalAmount")
-        tot["LM_Redondeo"] = txt_from(monetary, "cbc:PayableRoundingAmount")
+        tot["LM_Cargos"] = self.parse_float(txt_from(monetary, "cbc:ChargeTotalAmount"))
+        tot["LM_Redondeo"] = self.parse_float(txt_from(monetary, "cbc:PayableRoundingAmount"))
 
         # 4) Fallback extra: si PayableAmount no existe en el contenedor,
         # buscarlo en cualquier parte (hay notas débito que lo ponen distinto)
         if not tot["LM_Total_A_Pagar"]:
-            tot["LM_Total_A_Pagar"] = self.txt(root, ".//cbc:PayableAmount")
+            tot["LM_Total_A_Pagar"] = self.parse_float(self.txt(root, ".//cbc:PayableAmount"))
 
         # 5) Si TaxInclusiveAmount viene vacío, intenta recuperarlo global
         if not tot["LM_Total_Con_Impuestos"]:
-            tot["LM_Total_Con_Impuestos"] = self.txt(root, ".//cbc:TaxInclusiveAmount")
+            tot["LM_Total_Con_Impuestos"] = self.parse_float(self.txt(root, ".//cbc:TaxInclusiveAmount"))
 
         return tot
 

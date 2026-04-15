@@ -42,13 +42,6 @@ def set_current_tenant(tenant_id: str):
     global _current_tenant
     _current_tenant = tenant_id
 
-def _on_connect(dbapi_conn, conn_record):
-    """Se ejecuta cada vez que SQLAlchemy abre una conexión nueva."""
-    if _current_tenant:
-        cur = dbapi_conn.cursor()
-        cur.execute("SET app.tenant_id = %s", (_current_tenant,))
-        cur.close()
-
 # ======================================================
 # SQLAlchemy Base + Engine
 # ======================================================
@@ -69,20 +62,22 @@ def get_engine():
             max_overflow=10,
         )
 
-        event.listen(_engine, "connect", _on_connect)
-
     return _engine
 
 # ======================================================
 # Session manager
 # ======================================================
 @contextmanager
-def get_session() -> Generator:
+def get_session(tenant_id: str = None) -> Generator:
     """Context manager para manejar sesiones SQLAlchemy."""
     engine = get_engine()
     Session = sessionmaker(bind=engine, expire_on_commit=False)
     session = Session()
     try:
+        tid = tenant_id or _current_tenant
+        if tid:
+            session.execute(text("SET LOCAL app.current_tenant_id = :tenant"), {"tenant": str(tid)})
+            
         yield session
         session.commit()
     except Exception:

@@ -33,7 +33,6 @@ def _find_existing(session, cufe, cude, document_id, tenant_id: str):
         return None
         
     query = select(Document).where(
-        Document.tenant_id == tenant_id,
         or_(*conditions)
     )
     

@@ -521,51 +521,76 @@ class ProcessorApp:
             try:
                 selected_model_option = self.ai_model_var.get()
                 respuesta = self.assistant.ask(pregunta, model_option=selected_model_option)
-                msg_ok = f"🤖 Asistente: {respuesta}"
                 # IMPORTANTE: Usar self.root.after() para actualizar UI
-                self.root.after(0, lambda: self._finish_chat(msg_ok))
+                self.root.after(0, lambda: self._finish_chat(respuesta))
             except Exception as e:
-                msg_err = f"🤖 Asistente: Error: {str(e)}"
+                msg_err = f"Error: {str(e)}"
                 self.root.after(0, lambda: self._finish_chat(msg_err))
 
         threading.Thread(target=_proc, daemon=True).start()
 
-    def _finish_chat(self, respuesta: str):
-        """Reemplaza la línea 'escribiendo...' y re-habilita el input del chat."""
-        self._replace_last_ai_line(respuesta)
+    def _finish_chat(self, respuesta):
+        """Reemplaza la línea 'escribiendo...', procesa texto u opciones ricas, y re-habilita el input."""
+        self.chat_history.configure(state="normal")
+        try:
+            # Buscar y borrar "escribiendo..."
+            content = self.chat_history.get("1.0", "end-1c")
+            lines = content.split("\n")
+            for i in range(len(lines) - 1, -1, -1):
+                if "escribiendo..." in lines[i]:
+                    self.chat_history.delete(f"{i+1}.0", "end")
+                    break
+        except Exception as e:
+            print(f"Error borrando 'escribiendo...': {e}")
+            
+        # Insertar la nueva respuesta (dict o string)
+        if isinstance(respuesta, dict):
+            # Texto principal
+            msg_text = respuesta.get('text', '')
+            if not msg_text.startswith("🤖"):
+                msg_text = f"🤖 Asistente: {msg_text}"
+            self.chat_history.insert("end", msg_text + "\n\n")
+            
+            # Opciones como botones
+            options = respuesta.get('options', [])
+            if options:
+                # Contenedor para alinear los botones
+                btn_frame = ttk.Frame(self.chat_history)
+                for opt in options:
+                    btn = ttk.Button(
+                        btn_frame,
+                        text=opt['label'],
+                        bootstyle="outline-info",
+                        cursor="hand2",
+                        command=lambda action=opt['action']: self._send_auto_query(action)
+                    )
+                    btn.pack(side="left", padx=2, pady=2)
+                self.chat_history.window_create("end", window=btn_frame)
+                self.chat_history.insert("end", "\n\n")
+        else:
+            msg_text = str(respuesta)
+            if not msg_text.startswith("🤖") and not msg_text.startswith("📢") and not msg_text.startswith("📊") and not msg_text.startswith("🔎"):
+                msg_text = f"🤖 Asistente: {msg_text}"
+            self.chat_history.insert("end", msg_text + "\n\n")
+
+        self.chat_history.see("end")
+        self.chat_history.configure(state="disabled")
+        
         self.chat_entry.configure(state="normal")
         self.btn_enviar.configure(state="normal")
         self.chat_entry.focus_set()
+
+    def _send_auto_query(self, query: str):
+        """Envía una pregunta automáticamente (ej. al hacer clic en un botón de sugerencia)."""
+        self.chat_entry.configure(state="normal")
+        self.chat_entry.delete(0, "end")
+        self.chat_entry.insert(0, query)
+        self.enviar_pregunta()
 
     def _append_chat(self, text: str):
         """DEBE ser llamado desde el hilo principal o vía root.after()"""
         self.chat_history.configure(state="normal")
         self.chat_history.insert("end", text + "\n\n")
-        self.chat_history.see("end")
-        self.chat_history.configure(state="disabled")
-
-    def _replace_last_ai_line(self, new_text: str):
-        """Reemplaza la última línea del chat (ej: 'escribiendo...')"""
-        self.chat_history.configure(state="normal")
-        try:
-            # Buscar la última línea que contiene "escribiendo..."
-            content = self.chat_history.get("1.0", "end-1c")
-            lines = content.split("\n")
-            
-            # Encontrar última línea con "escribiendo..."
-            for i in range(len(lines) - 1, -1, -1):
-                if "escribiendo..." in lines[i]:
-                    # Calcular posición de inicio de esa línea
-                    line_num = i + 1
-                    last_line_start = f"{line_num}.0"
-                    # Borrar desde esa línea hasta el final
-                    self.chat_history.delete(last_line_start, "end")
-                    break
-        except Exception as e:
-            print(f"Error en _replace_last_ai_line: {e}")
-        
-        # Insertar la nueva respuesta
-        self.chat_history.insert("end", new_text + "\n\n")
         self.chat_history.see("end")
         self.chat_history.configure(state="disabled")
 

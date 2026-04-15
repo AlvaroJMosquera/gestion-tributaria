@@ -37,140 +37,6 @@ def extract_sql_only(raw: str) -> str:
     return sql
 
 
-def enforce_tenant_guards(sql: str, tenant_id: str) -> str:
-    """
-    Inyecta filtros tenant_id en tablas con tenant_id si no aparecen explícitamente.
-    Normaliza 'tenant_id' sin alias cuando haya joins.
-    """
-    s = (sql or "").strip()
-    low = s.lower()
-    must = f"'{tenant_id}'"
-
-    # Caso especial: DELETE/UPDATE directos a usuarios
-    if re.search(r"(?i)^\s*delete\s+from\s+usuarios\b", low) or re.search(r"(?i)^\s*update\s+usuarios\b", low):
-        combined = f"usuarios.tenant_id = {must}"
-        if " where " in low:
-            s = re.sub(r"(?is)\bWHERE\b", f"WHERE {combined} AND ", s, count=1)
-        else:
-            s = s.rstrip(";") + f" WHERE {combined};"
-        return s
-
-    # Aliases por defecto (recomendados)
-    alias_doc = "d"
-    alias_line = "l"
-    alias_doc_tax = "dt"
-    alias_batch = "b"
-    alias_tenant = "t"
-    alias_user = "u"
-    alias_party = "p"
-    alias_err = "e"
-
-    # Detectar alias reales si fueron diferentes
-    m_doc = re.search(r"from\s+documents\s+(\w+)", low)
-    if m_doc: alias_doc = m_doc.group(1)
-
-    m_line_from = re.search(r"from\s+lines\s+(\w+)", low)
-    m_line_join = re.search(r"join\s+lines\s+(\w+)", low)
-    if m_line_join: alias_line = m_line_join.group(1)
-    if m_line_from: alias_line = m_line_from.group(1)
-
-    m_doc_tax_from = re.search(r"from\s+document_taxes\s+(\w+)", low)
-    m_doc_tax_join = re.search(r"join\s+document_taxes\s+(\w+)", low)
-    if m_doc_tax_join: alias_doc_tax = m_doc_tax_join.group(1)
-    if m_doc_tax_from: alias_doc_tax = m_doc_tax_from.group(1)
-
-    m_batch_from = re.search(r"from\s+batches\s+(\w+)", low)
-    m_batch_join = re.search(r"join\s+batches\s+(\w+)", low)
-    if m_batch_join: alias_batch = m_batch_join.group(1)
-    if m_batch_from: alias_batch = m_batch_from.group(1)
-
-    m_tenant_from = re.search(r"from\s+tenants\s+(\w+)", low)
-    m_tenant_join = re.search(r"join\s+tenants\s+(\w+)", low)
-    if m_tenant_join: alias_tenant = m_tenant_join.group(1)
-    if m_tenant_from: alias_tenant = m_tenant_from.group(1)
-
-    m_user_from = re.search(r"from\s+usuarios\s+(\w+)", low)
-    m_user_join = re.search(r"join\s+usuarios\s+(\w+)", low)
-    if m_user_join: alias_user = m_user_join.group(1)
-    if m_user_from: alias_user = m_user_from.group(1)
-
-    m_party_from = re.search(r"from\s+parties\s+(\w+)", low)
-    m_party_join = re.search(r"join\s+parties\s+(\w+)", low)
-    if m_party_join: alias_party = m_party_join.group(1)
-    if m_party_from: alias_party = m_party_from.group(1)
-
-    m_err_from = re.search(r"from\s+errors\s+(\w+)", low)
-    m_err_join = re.search(r"join\s+errors\s+(\w+)", low)
-    if m_err_join: alias_err = m_err_join.group(1)
-    if m_err_from: alias_err = m_err_from.group(1)
-
-    def has_where_clause(text_lower: str) -> bool:
-        return " where " in text_lower
-
-    # Normalizar tenant_id sin alias si hay tablas específicas
-    if ("from documents" in low or "join documents" in low):
-        s = re.sub(r"(?i)(?<![\w\.])tenant_id\b", f"{alias_doc}.tenant_id", s)
-        low = s.lower()
-    if ("from lines" in low or "join lines" in low):
-        s = re.sub(r"(?i)(?<![\w\.])tenant_id\b", f"{alias_line}.tenant_id", s)
-        low = s.lower()
-    if ("from document_taxes" in low or "join document_taxes" in low):
-        s = re.sub(r"(?i)(?<![\w\.])tenant_id\b", f"{alias_doc_tax}.tenant_id", s)
-        low = s.lower()
-    if ("from batches" in low or "join batches" in low):
-        s = re.sub(r"(?i)(?<![\w\.])tenant_id\b", f"{alias_batch}.tenant_id", s)
-        low = s.lower()
-    if ("from usuarios" in low or "join usuarios" in low):
-        s = re.sub(r"(?i)(?<![\w\.])tenant_id\b", f"{alias_user}.tenant_id", s)
-        low = s.lower()
-    if ("from parties" in low or "join parties" in low):
-        s = re.sub(r"(?i)(?<![\w\.])tenant_id\b", f"{alias_party}.tenant_id", s)
-        low = s.lower()
-    if ("from errors" in low or "join errors" in low):
-        s = re.sub(r"(?i)(?<![\w\.])tenant_id\b", f"{alias_err}.tenant_id", s)
-        low = s.lower()
-
-    # Agregar filtros tenant_id por tabla si no están
-    filters_to_add = []
-
-    if ("from documents" in low or "join documents" in low) and f"{alias_doc}.tenant_id" not in low:
-        filters_to_add.append(f"{alias_doc}.tenant_id = {must}")
-
-    if ("join lines" in low or "from lines" in low) and f"{alias_line}.tenant_id" not in low:
-        filters_to_add.append(f"{alias_line}.tenant_id = {must}")
-
-    if ("join document_taxes" in low or "from document_taxes" in low) and f"{alias_doc_tax}.tenant_id" not in low:
-        filters_to_add.append(f"{alias_doc_tax}.tenant_id = {must}")
-
-    if ("from batches" in low or "join batches" in low) and f"{alias_batch}.tenant_id" not in low:
-        filters_to_add.append(f"{alias_batch}.tenant_id = {must}")
-
-    if ("from tenants" in low or "join tenants" in low) and f"{alias_tenant}.id" not in low:
-        filters_to_add.append(f"{alias_tenant}.id = {must}")
-
-    if ("from usuarios" in low or "join usuarios" in low) and f"{alias_user}.tenant_id" not in low:
-        filters_to_add.append(f"{alias_user}.tenant_id = {must}")
-
-    if ("from parties" in low or "join parties" in low) and f"{alias_party}.tenant_id" not in low:
-        filters_to_add.append(f"{alias_party}.tenant_id = {must}")
-
-    if ("from errors" in low or "join errors" in low) and f"{alias_err}.tenant_id" not in low:
-        filters_to_add.append(f"{alias_err}.tenant_id = {must}")
-
-    if filters_to_add:
-        combined_filter = " AND ".join(filters_to_add)
-        if has_where_clause(low):
-            s = re.sub(r"(?is)\bWHERE\b", f"WHERE {combined_filter} AND ", s, count=1)
-        else:
-            insert_pos = None
-            for match in re.finditer(r"(?i)\b(FROM|JOIN)\s+[\w\.]+\s+\w+", s):
-                insert_pos = match.end()
-            if insert_pos:
-                s = s[:insert_pos] + f" WHERE {combined_filter} " + s[insert_pos:]
-            else:
-                s = s.rstrip(";") + f" WHERE {combined_filter};"
-
-    return s
 
 
 def _first_day_of_month(y: int, m: int):
@@ -269,7 +135,7 @@ def fix_agg_order_limit(sql: str, tenant_id: str) -> str:
 
         subq = (
             "SELECT id FROM documents "
-            f"WHERE tenant_id = '{tenant_id}' AND LOWER(document_type::text) = 'invoice' "
+            "WHERE LOWER(document_type::text) = 'invoice' "
             "ORDER BY issue_date DESC, "
             "COALESCE(issue_time, TIME '00:00:00') DESC, "
             "id DESC "
@@ -456,10 +322,10 @@ def _inject_tax_hint_in_question(q: str) -> str:
         if re.search(rf"\b{tok}\b", ql):
             q += f" [hint: impuesto tax_code={code}]"
             break
-    m = PCT_RE.search(ql)
-    if m:
-        pct = int(m.group(1))
-        q += f" [hint: tax_rate={pct}]"
+    matches = PCT_RE.findall(ql)
+    if matches:
+        rates = [str(int(m) / 100) for m in matches]
+        q += f" [hint: buscar en dt.tax_rate usando formato decimal: {', '.join(rates)}]"
     return q
 
 
@@ -488,6 +354,7 @@ class SQLAssistant:
         self.tenant_id = tenant_id
         self.api_key = api_key
         self.last_query_context = None
+        self.history = []  # Memoria conversacional multil-turno
 
     def _pick_model(self, q_lower: str) -> str:
         sqlish = any(k in q_lower for k in [
@@ -504,7 +371,15 @@ class SQLAssistant:
     def generate_sql(self, question: str, context: str = None) -> str:
         today_iso = date.today().isoformat()
         base_context = f"\n### Contexto de tiempo:\nHoy: {today_iso}\nZona horaria: America/Bogota\n"
-        context_info = base_context + (f"\n### Contexto anterior:\n{context}\n" if context else "")
+        
+        historial_str = ""
+        if hasattr(self, 'history') and self.history:
+            historial_str = "\n### Historial Conversacional Reciente:\n"
+            for past_q in self.history:
+                historial_str += f"- Usuario preguntó antes: {past_q}\n"
+            historial_str += "\nEl usuario acaba de preguntar lo siguiente (que puede ser una continuación del historial anterior).\n"
+
+        context_info = base_context + historial_str + (f"\n### Contexto anterior extra:\n{context}\n" if context else "")
 
         prompt = f"""
 Eres un asistente SQL experto en PostgreSQL.
@@ -523,6 +398,15 @@ Devuelve SOLO UNA sentencia SQL ejecutable (sin explicaciones, sin markdown).
 - errors e
 - tax_schemes ts
 
+### 📘 DICCIONARIO DE CONOCIMIENTO Y NEGOCIO (¡Usa esto para entender a un humano!)
+- **"Ventas", "Facturado", "Ingresos", "He cobrado"**: Se refiere a tus facturas de emisión a CLIENTES. Necesitas hacer un JOIN con `parties p` y filtrar obligatoriamente por `LOWER(p.role::text) = 'customer'`.
+- **"Compras", "Gastos", "Pagado"**: Se refiere a facturas emitidas por PROVEEDORES. Necesitas hacer un JOIN con `parties p` y filtrar obligatoriamente por `LOWER(p.role::text) = 'supplier'`.
+- **"Cliente", "Comprador"**: Entidad en la tabla `parties` donde `role = 'customer'`.
+- **"Proveedor", "Vendedor"**: Entidad en la tabla `parties` donde `role = 'supplier'`.
+- **"Ciudad", "Pueblo", "Lugar", "Ubicación"**: Geográficamente se refiere obligatoriamente a la columna `municipio` de la tabla `parties`.
+- **"IVA facturado" / "IVA cobrado"**: Impuesto `tax_code = '1'` en ventas (`role = 'customer'`).
+- **"IVA descontable" / "IVA pagado"**: Impuesto `tax_code = '1'` en compras (`role = 'supplier'`).
+
 ### Esquema (resumen):
 - tenants(id uuid PK, nombre text, nit text UNIQUE, creado_en timestamp)
 - usuarios(id uuid PK, nombre text, email text UNIQUE, password_hash text, tenant_id uuid, creado_en timestamp, status, last_seen_at timestamptz)
@@ -538,7 +422,7 @@ Devuelve SOLO UNA sentencia SQL ejecutable (sin explicaciones, sin markdown).
 - errors(id bigint PK, batch_id bigint?, document_id bigint?, archivo varchar, detalle text, tenant_id uuid)
 
 ### Reglas críticas y Errores Comunes que Debes Evitar:
-- NO agregues filtros tenant_id: el sistema los inyecta automáticamente.
+- RLS ACTIVO: NO agregues filtros por tenant_id, Postgres lo maneja de forma invisible a nivel de sesión.
 - El campo `tax_code` es de tipo TEXT, nunca INTEGER. Si omites comillas simples dará error (Operator does not exist: text = integer). SIEMPRE USAR COMILLAS SIMPLES, ejemplo: dt.tax_code = '1'
 - Búsqueda de texto (productos/nombres): NUNCA uses coincidencia exacta (`=`). SIEMPRE usa `ILIKE '%texto%'` para evitar que fallen búsquedas parciales. (Ej: `l.producto ILIKE '%cable%'` en vez de `= 'cable'`).
 - Enum/estado/tipo: SIEMPRE compara con LOWER(campo::text). Ejemplos:
@@ -546,10 +430,13 @@ Devuelve SOLO UNA sentencia SQL ejecutable (sin explicaciones, sin markdown).
   • Notas: LOWER(d.document_type::text) IN ('credit_note','debit_note')
   • Roles party: LOWER(p.role::text) IN ('supplier','customer')
   • Estados batch/usuario: LOWER(campo::text) = 'done'/'activo', etc.
-- Totales:
-  • Total ventas → SUM(l.total)
-  • Base → SUM(l.base)
-  • Total a pagar (si aplica) → SUM(d.lm_total_a_pagar) o d.lm_total_a_pagar según agrupación
+  • ¡Presta MAXIMA atención a CERRAR las comillas simples! Nunca dejes una fecha sin cerrar (Ej. '2025-01-01' y NO '2025-01-01).
+  • Si un usuario solicita buscar facturas con un porcentaje de impuesto (ej. "IVA 19%" o "ICUI 20%"), debes buscar en `dt.tax_rate` APLICANDO FORMATO DECIMAL (dividiendo por 100). Ejemplo: para 20% es obligatoriamente `dt.tax_rate = 0.20` (NUNCA 20 entero).
+- Totales (Evita Productos Cartesianos o Duplicaciones por JOIN Múltiple):
+  • Base subtotal → SUM(l.base)
+  • IVA u otros impuestos → SUM(dt.tax_amount)
+  • Total a pagar → SUM(d.lm_total_a_pagar)
+  • ⚠️ REGLA DE ORO DE MATEMÁTICAS: ¡NUNCA juntas la tabla `lines l` y `document_taxes dt` en un mismo nivel de consulta `FROM d JOIN l JOIN dt` sin subconsultas previas! Esto inflará los números y te equivocarás miserablemente. Si te preguntan "Base + Impuestos" en una misma consulta, DEBES estructurar la respuesta con dos sumatorias aisladas usando dos tablas temporales o subconsultas en un LEFT JOIN pre-agrupado tal como lo haría un humano inteligente y experimentado en SQL, ejemplo: `LEFT JOIN (SELECT document_id, SUM(base) ... GROUP BY document_id) l_agg` y `LEFT JOIN (SELECT document_id, SUM(tax_amount) ... GROUP BY document_id) dt_agg`.
 - Impuestos:
   • Si se pide un impuesto, SIEMPRE usa JOIN document_taxes dt ON dt.document_id = d.id (No unas a `lines l` si no es necesario para evitar duplicaciones por producto).
   • Si el usuario menciona ICUI/IBUA/INPP: filtra dt.tax_code = '35', dt.tax_code = '34' o dt.tax_code = '33'.
@@ -564,7 +451,17 @@ Devuelve SOLO UNA sentencia SQL ejecutable (sin explicaciones, sin markdown).
 
 Pregunta: "{question}"
 
-Responde en JSON estricto:
+### EJEMPLOS DE RESPUESTA ESPERADA (¡Imita este patrón estrictamente!):
+P: ¿Cuánto IVA he cobrado hoy?
+R: {{"sql": "SELECT SUM(dt.tax_amount) FROM documents d JOIN document_taxes dt ON dt.document_id = d.id WHERE dt.tax_code = '1' AND LOWER(d.document_type::text) = 'invoice';"}}
+
+P: Facturas del cliente XYZ
+R: {{"sql": "SELECT d.id, d.document_id, d.issue_date, d.issue_time, d.sender_nit, d.receiver_nit, d.file_name FROM documents d JOIN parties p ON p.document_id = d.id WHERE LOWER(p.role::text) = 'customer' AND p.razon_social ILIKE '%XYZ%';"}}
+
+P: ¿Qué 5 proveedores me han facturado más en 2025?
+R: {{"sql": "SELECT p.razon_social, p.nit, SUM(d.lm_total_a_pagar) AS recaudado FROM documents d JOIN parties p ON p.document_id = d.id WHERE LOWER(p.role::text) = 'supplier' AND date_trunc('year', d.issue_date) = '2025-01-01' GROUP BY p.razon_social, p.nit ORDER BY recaudado DESC LIMIT 5;"}}
+
+Responde en JSON estricto sin incluir texto adicional ni explicaciones:
 {{"sql": "<UNA sola sentencia SQL>"}}
 """.strip()
 
@@ -578,7 +475,11 @@ Responde en JSON estricto:
                 "model": "llama3.1",
                 "prompt": prompt_text,
                 "stream": False,
-                "format": "json"
+                "format": "json",
+                "options": {
+                    "temperature": 0.0,
+                    "num_predict": 250
+                }
             }
             req = urllib.request.Request(url, data=json.dumps(data).encode('utf-8'),
                                          headers={'Content-Type': 'application/json'})
@@ -666,11 +567,14 @@ Responde en JSON estricto:
             # Post-procesamiento para errores comunes del Llama 3.1
             # Corrige: dt.tax_code = 1 -> dt.tax_code = '1'
             sql = re.sub(r"(?i)(tax_code\s*=\s*)(\d+)(?!\')", r"\g<1>'\g<2>'", sql)
+            
+            # Corrige comillas sin cerrar en fechas típicas de Llama (ej. ... BETWEEN '2025-01-01' AND '2025-12-31 GROUP BY ...)
+            # Si encuentra algo como 'YYYY-MM-DD seguido inmediatamente de espacio y una palabra clave reservada
+            sql = re.sub(r"('\d{4}-\d{2}-\d{2})\s+(GROUP\b|ORDER\b|LIMIT\b|WHERE\b|AND\b|OR\b|HAVING\b)", r"\g<1>' \g<2>", sql, flags=re.IGNORECASE)
             # Elimina JOIN innecesario a `lines l` si hace JOIN con `document_taxes dt` sin usar `l.`
             if re.search(r"(?i)JOIN\s+lines\s+[A-Za-z0-9_]+\s+ON", sql) and not re.search(r"(?i)\bl\.[a-z_]+", sql.replace("l.document_id", "")):
                 pass # Lógica más compleja requerida para sanear JOINs, se omitirá por seguridad
 
-        sql = enforce_tenant_guards(sql, str(self.tenant_id))
         sql = fix_agg_order_limit(sql, str(self.tenant_id))
         return sql
 
@@ -735,7 +639,6 @@ Responde en JSON estricto:
         if _want_last_invoice(q_lower):
             t0 = time.perf_counter()
             sql = _build_sql_last_invoice()
-            sql = enforce_tenant_guards(sql, str(self.tenant_id))
             with self.engine.connect() as conn:
                 rows = conn.execute(text(sql)).mappings().all()
             t1 = time.perf_counter()
@@ -766,7 +669,6 @@ Responde en JSON estricto:
             t0 = time.perf_counter()
             with self.engine.connect() as conn:
                 sql = _build_sql_invoices_by_party(nit=explicit_nit, name=None, role=None)
-                sql = enforce_tenant_guards(sql, str(self.tenant_id))
                 rows = conn.execute(text(sql), {"nit": explicit_nit}).mappings().all()
             t1 = time.perf_counter()
             db_ms = int((t1 - t0) * 1000)
@@ -795,7 +697,6 @@ Responde en JSON estricto:
             with self.engine.connect() as conn:
                 if explicit_nit:
                     sql = _build_sql_invoices_by_party(nit=explicit_nit, name=None, role=role)
-                    sql = enforce_tenant_guards(sql, str(self.tenant_id))
                     rows = conn.execute(text(sql), {"nit": explicit_nit}).mappings().all()
                     t1 = time.perf_counter()
                     db_ms = int((t1 - t0) * 1000)
@@ -819,14 +720,18 @@ Responde en JSON estricto:
                         return f"📢 No encontré coincidencias para «{name_candidate}». Intenta con parte del nombre o verifica tildes."
 
                     top = cand[0]
-                    sugerencias = "\n".join([
-                        f"• {c['razon_social']} (NIT {c['nit']}) sim={round(c.get('sim', 0), 2)}"
+                    
+                    # Para enviar acciones a la UI
+                    options = [
+                        {
+                            "label": f"{c['razon_social']} (NIT {c['nit']})", 
+                            "action": f"tráeme las facturas del nit {c['nit']}"
+                        }
                         for c in cand[:5]
-                    ])
+                    ]
 
                     if top.get("sim", 0) >= 0.30:
                         sql = _build_sql_invoices_by_party(nit=top["nit"], name=None, role=role)
-                        sql = enforce_tenant_guards(sql, str(self.tenant_id))
                         with self.engine.connect() as conn2:
                             rows = conn2.execute(text(sql), {"nit": top["nit"]}).mappings().all()
 
@@ -835,17 +740,29 @@ Responde en JSON estricto:
                         perf = ""
 
                         if rows:
-                            encabezado = f"🔎 ¿Quisiste decir **{top['razon_social']}** (NIT {top['nit']})?\n\n"
+                            encabezado = f"🔎 Asumí que quisiste decir **{top['razon_social']}** (NIT {top['nit']}).\n\n"
                             detalle = f"📊 Encontré {len(rows)} factura(s):\n"
                             for idx, r in enumerate(rows[:10], 1):
                                 detalle += f"{idx}. {r['document_id']} | {r['issue_date']} {r['issue_time'] or ''} | sender={r['sender_nit']} receiver={r['receiver_nit']}\n"
                             if len(rows) > 10:
                                 detalle += f"... y {len(rows) - 10} más.\n"
-                            return encabezado + "Sugerencias:\n" + sugerencias + "\n\n" + detalle + perf
+                                
+                            # Mostramos las facturas, pero damos botones para los DEMÁS prospectos (cand[1:5])
+                            other_options = options[1:]
+                            if other_options:
+                                text_msg = encabezado + detalle + perf + "\n\n¿Buscas a otro? Selecciona aquí:"
+                                return {"text": text_msg, "options": other_options}
+                            return encabezado + detalle + perf
 
-                        return f"🔎 Sugerencias de proveedor/cliente para «{name_candidate}»:\n{sugerencias}"
+                        return {
+                            "text": f"🔎 No encontré facturas para el candidato ideal. Sugerencias de proveedor/cliente para «{name_candidate}»:\nElige una opción para filtrarla por NIT exacto:",
+                            "options": options
+                        }
 
-                    return f"🔎 ¿Quisiste decir…?\n{sugerencias}"
+                    return {
+                        "text": f"🔎 No encontré «{name_candidate}» unívocamente. ¿Quisiste decir alguno de estos?",
+                        "options": options
+                    }
 
         # -------------------------
         # Flujo estándar con LLM
@@ -868,6 +785,12 @@ Responde en JSON estricto:
 
             if not rows:
                 return "📢 No encontré registros que coincidan con la consulta." + perf
+
+            # Guardar la pregunta en memoria si fue exitosa
+            if hasattr(self, 'history'):
+                self.history.append(question_norm)
+                if len(self.history) > 3:
+                    self.history = self.history[-3:]
 
             if len(rows) == 1 and "receiver_nit" in rows[0]:
                 self.last_query_context = f"Última consulta sobre receiver_nit={rows[0]['receiver_nit']}"

@@ -157,6 +157,7 @@ class Line(Base):
     document_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("documents.id"), nullable=False)
     line_no: Mapped[Optional[int]] = mapped_column(Numeric(10, 0))
     producto: Mapped[Optional[str]] = mapped_column(String)
+    sku: Mapped[Optional[str]] = mapped_column(String)
     cantidad: Mapped[Optional[float]] = mapped_column(Numeric(18, 4))
     base: Mapped[Optional[float]] = mapped_column(Numeric(18, 2))
     total: Mapped[Optional[float]] = mapped_column(Numeric(18, 2))
