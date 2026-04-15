@@ -6,7 +6,31 @@ from ttkbootstrap.constants import *
 from backend.app.presentation.login_window import LoginWindow
 from backend.app.presentation.gui import ProcessorApp
 from backend.app.infrastructure.db.db_config import set_current_tenant
+import os
+import sys
+import subprocess
+import atexit
 
+def start_ollama():
+    """Inicia el servidor local de Ollama en modo oculto utilizando los archivos empaquetados."""
+    try:
+        # Determinar el directorio base (compilado vs código fuente)
+        if getattr(sys, 'frozen', False):
+            base_dir = os.path.dirname(sys.executable)
+        else:
+            base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+            
+        ollama_exe = os.path.join(base_dir, 'installer_assets', 'ollama.exe')
+        models_dir = os.path.join(base_dir, 'installer_assets', 'models')
+        
+        if os.path.exists(ollama_exe):
+            print(f"Levantando servicio local Ollama con modelos en: {models_dir}")
+            os.environ["OLLAMA_MODELS"] = models_dir
+            # creationflags=0x08000000 es CREATE_NO_WINDOW para evitar consola emergente
+            proc = subprocess.Popen([ollama_exe, 'serve'], creationflags=0x08000000)
+            atexit.register(lambda: proc.terminate())
+    except Exception as e:
+        print(f"Error al iniciar el servidor Ollama local: {e}")
 
 def _apply_dpi_scaling(win: ttk.Window):
     """Escalado opcional para pantallas HiDPI."""
@@ -29,6 +53,9 @@ def _maximize_window(win: ttk.Window):
         win.geometry("1200x800")
 
 def main():
+    # Inicia la IA empaquetada si está disponible
+    start_ollama()
+    
     # ========== 1) Ventana de LOGIN ==========
     login_root = ttk.Window(themename="flatly")
     _apply_dpi_scaling(login_root)

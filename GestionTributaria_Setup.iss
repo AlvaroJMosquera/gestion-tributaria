@@ -86,6 +86,9 @@ Name: "startmenuicon";  Description: "Crear acceso directo en el &Menú Inicio";
 ; Ejecutable principal
 Source: "dist\{#AppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 
+; Archivos del motor IA (Ollama standalone y modelos locales)
+Source: "installer_assets\*"; DestDir: "{app}\installer_assets"; Flags: ignoreversion recursesubdirs
+
 ; Si en el futuro agregas archivos adicionales, añádelos aquí:
 ; Source: "dist\.env";          DestDir: "{app}"; Flags: ignoreversion
 ; Source: "dist\config\*";      DestDir: "{app}\config"; Flags: ignoreversion recursesubdirs

@@ -67,3 +67,6 @@ desktop.ini
 # ======================================================
 *.log
 logs/
+
+# Local IA assets for installer
+installer_assets/
