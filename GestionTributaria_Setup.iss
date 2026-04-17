@@ -8,10 +8,11 @@
 #define AppVersion   "1.0.0"
 #define AppPublisher "Universidad Santiago de Cali"
 #define AppURL       "https://github.com/AlvaroJMosquera/gestion-tributaria"
-#define AppExeName   "main.exe"
+#define AppExeName   "GestionTributaria.exe"
 #define AppYear      "2026"
 
 [Setup]
+DiskSpanning=yes
 ; --- Identificador único de la aplicación (no cambiar en actualizaciones)
 AppId={{A7F2C3D4-E891-4B2A-9F3E-1D2C4B5A6E7F}
 

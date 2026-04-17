@@ -40,6 +40,7 @@ docs/
 test/
 htmlcov/
 .coverage
+*.ico
 # ======================================================
 # BASE DE DATOS LOCAL / SUPABASE
 # ======================================================
@@ -54,7 +55,7 @@ Supabase.txt
 .idea/
 *.sublime-project
 *.sublime-workspace
-
+*.iss
 # ======================================================
 # SISTEMA OPERATIVO
 # ======================================================
@@ -70,3 +71,9 @@ logs/
 
 # Local IA assets for installer
 installer_assets/
+
+# Output for installer
+Output/
+
+# Inno Setup Compiler
+ISCC.exe
