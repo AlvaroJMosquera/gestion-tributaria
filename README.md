@@ -69,7 +69,7 @@ uv pip install -r requirements.txt
 Asegúrate de preparar y definir un archivo `.env` en la raíz si estás apuntando a bases de datos en la nube (como Supabase), o usa la conexión local.
 
 ```bash
-python main.py
+python -m backend.app.presentation.main
 ```
 
 ---
