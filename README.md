@@ -1,4 +1,4 @@
-# 📊 Gestión Tributaria
+# Gestión Tributaria
 
 Sistema de escritorio asistido por IA para la gestión tributaria de MiPymes colombianas. Automatiza la extracción, validación y consulta de facturas electrónicas UBL 2.1 (XML/ZIP) con un asistente dual de inteligencia artificial (Ollama/Llama 3.1 + Gemini 2.5 Flash) y almacenamiento en PostgreSQL.
 
@@ -7,7 +7,7 @@ Sistema de escritorio asistido por IA para la gestión tributaria de MiPymes col
 
 ---
 
-## 📌 Resumen del Proyecto
+## Resumen del Proyecto
 
 Este software fue diseñado para resolver problemas de lentitud y errores humanos en la extracción masiva de datos fiscales (XML/Excel). Permite cargar carpetas enteras de archivos, procesarlos automáticamente y extraer la información tributaria y base contable para generar visualizaciones, análisis y hojas de reporte exportables.
 
@@ -15,7 +15,7 @@ Además, cuenta con un asistente interactivo alimentado por Inteligencia Artific
 
 ---
 
-## 👥 Créditos y Autores
+## 👥Créditos y Autores
 
 * **Desarrollador Principal:** Álvaro José Mosquera Morales
 * **Director del Proyecto:** Jair Enrique Sanclemente Castro
@@ -35,7 +35,7 @@ El proyecto ha sido diseñado bajo arquitectura multicapa siguiendo las mejores 
 
 ---
 
-## 🚀 Guía de Instalación
+## Guía de Instalación
 
 Existen dos maneras de disponer de la aplicación, ya sea para su uso productivo inmediato o para el desarrollo técnico.
 
