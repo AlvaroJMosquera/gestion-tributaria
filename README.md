@@ -1,6 +1,6 @@
-# 📊 Gestión Tributaria (Extraer Facturas)
+# 📊 Gestión Tributaria
 
-Sistema Automatizado para la Extracción, Procesamiento y Análisis de Archivos de Facturación. Este software integra un pipeline de extracción de datos, persistencia inteligente y capacidades nativas de Inteligencia Artificial (Llama 3.1) operando de forma 100% desconectada (offline).
+Sistema de escritorio asistido por IA para la gestión tributaria de MiPymes colombianas. Automatiza la extracción, validación y consulta de facturas electrónicas UBL 2.1 (XML/ZIP) con un asistente dual de inteligencia artificial (Ollama/Llama 3.1 + Gemini 2.5 Flash) y almacenamiento en PostgreSQL.
 
 > **Proyecto de Grado** - Programa de Ingeniería de Sistemas  
 > **Institución:** Universidad Santiago de Cali (USC) - 2026
@@ -29,9 +29,9 @@ El proyecto ha sido diseñado bajo arquitectura multicapa siguiendo las mejores 
 
 - **Lenguaje Base:** Python 3.13+
 - **Interfaz Gráfica (GUI):** `ttkbootstrap` orientada a componentes.
-- **Inteligencia Artificial:** Standalone C++ Engine (`ggml` vía `Ollama`) y modelo iterativo `Llama 3.1 (8B)`.
+- **Inteligencia Artificial:** Gemini Flask 2.5 en nube y Ollama con su modelo Llama 3.1(8B) de manera local`.
 - **Ecosistema de Dependencias:** Gestión ultrarrápida usando `uv`.
-- **Empaquetado y Distribución:** Compilado binario en `PyInstaller` y empaquetado multi-slice con `Inno Setup Compiler` (evadiendo la compresión limitante de Windows).
+- **Empaquetado y Distribución:** Compilado binario en `PyInstaller` y empaquetado multi-slice con `Inno Setup Compiler`.
 
 ---
 
