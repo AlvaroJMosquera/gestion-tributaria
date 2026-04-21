@@ -1,24 +1,77 @@
-MIT License
+LICENCIA PROPIETARIA - UNIVERSIDAD SANTIAGO DE CALI
 
-Copyright (c) 2026 Alvaro Jose Mosquera Morales - Universidad Santiago de Cali
+Sistema de Gestión Tributaria v1.0.0
+Copyright (c) 2026 Universidad Santiago de Cali
+Autor: Álvaro José Mosquera Morales
+Director: Jair Enrique Sanclemente Castro, M.Sc
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+PROPIEDAD INTELECTUAL
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Todos los derechos patrimoniales de autor sobre este software fueron cedidos
+de forma total, incondicional, ilimitada y a nivel mundial a la Universidad
+Santiago de Cali (USC), mediante contrato de cesión de derechos patrimoniales
+suscrito el 15 de abril de 2026, de conformidad con la Ley 23 de 1982, la
+Ley 44 de 1993, la Decisión 351 del Acuerdo de Cartagena y el Convenio de
+Berna.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+El autor conserva los derechos morales sobre la obra, los cuales son
+inalienables, irrenunciables e imprescriptibles conforme a la legislación
+colombiana.
 
---- 
-*Nota Académica: Este software fue desarrollado como Trabajo de Grado para el programa de Ingeniería de Sistemas de la Universidad Santiago de Cali (USC). Director: Jair Enrique Sanclemente Castro.*
+USO PERMITIDO
+
+El código fuente de este repositorio se publica con fines exclusivamente
+académicos y de consulta educativa. Su uso está autorizado para:
+
+  - Consulta y referencia académica por parte de estudiantes, docentes e
+    investigadores.
+  - Evaluación como trabajo de grado del Programa de Ingeniería de Sistemas
+    de la Universidad Santiago de Cali.
+
+Cualquier otro uso, incluyendo pero no limitado a la reproducción, modificación,
+distribución, comercialización o explotación del software, requiere autorización
+expresa y por escrito de la Universidad Santiago de Cali.
+
+RESTRICCIONES
+
+Queda expresamente prohibido sin autorización escrita de la Universidad
+Santiago de Cali:
+
+  - Redistribuir, sublicenciar o comercializar este software, total o
+    parcialmente.
+  - Modificar, adaptar o crear obras derivadas con fines de explotación
+    comercial.
+  - Presentar este software o partes de él como obra propia.
+
+CONFIDENCIALIDAD
+
+La información contenida en este software tiene carácter confidencial conforme
+al contrato de cesión suscrito. Queda prohibida su divulgación sin autorización
+de la Universidad Santiago de Cali, salvo aquella que sea calificada como
+pública por la institución.
+
+EXENCIÓN DE RESPONSABILIDAD
+
+ESTE SOFTWARE SE PROPORCIONA "TAL COMO ESTÁ", SIN GARANTÍAS DE NINGÚN TIPO,
+EXPRESAS O IMPLÍCITAS. NI EL AUTOR NI LA UNIVERSIDAD SANTIAGO DE CALI SE HACEN
+RESPONSABLES POR PÉRDIDAS DE DATOS, ERRORES EN CÁLCULOS TRIBUTARIOS, SANCIONES
+FISCALES O CUALQUIER DAÑO DIRECTO O INDIRECTO DERIVADO DEL USO DEL SISTEMA.
+SE RECOMIENDA QUE UN CONTADOR PÚBLICO CERTIFICADO VALIDE LOS RESULTADOS
+GENERADOS ANTES DE PRESENTAR CUALQUIER DECLARACIÓN TRIBUTARIA.
+
+MARCO LEGAL
+
+  - Ley 23 de 1982 — Derechos de autor (Colombia)
+  - Ley 44 de 1993 — Modificaciones a la Ley 23 de 1982
+  - Decisión 351 del Acuerdo de Cartagena — Régimen común sobre derecho de autor
+  - Convenio de Berna — Protección de obras literarias y artísticas
+  - Ley 1581 de 2012 — Protección de datos personales
+
+CONTACTO
+
+Para solicitudes de autorización de uso o colaboración académica:
+  Dirección General de Investigaciones — Universidad Santiago de Cali
+  Programa de Ingeniería de Sistemas — Facultad de Ingeniería
+  Correo del autor: alvaro.mosquera04@usc.edu.co
+
+(c) 2026 Universidad Santiago de Cali. Todos los derechos patrimoniales reservados.
