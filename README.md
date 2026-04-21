@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.png" alt="Gestión Tributaria" width="150">
+</p>
+
 # Gestión Tributaria
 
 Sistema de escritorio asistido por IA para la gestión tributaria de MiPymes colombianas. Automatiza la extracción, validación y consulta de facturas electrónicas UBL 2.1 (XML/ZIP) con un asistente dual de inteligencia artificial (Ollama/Llama 3.1 + Gemini 2.5 Flash) y almacenamiento en PostgreSQL.
